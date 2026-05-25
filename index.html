@@ -1,0 +1,320 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>CORE//PROFILE ANALYSIS v2.1</title>
+  <style>
+    :root {
+      --bg: #030508; --panel: #0a0d14; --frame: #111827;
+      --cyan: #00f3ff; --magenta: #ff2a6d; --green: #05ffa1;
+      --dim: #2a3441; --text: #c8d6e5; --warn: #ff3366;
+      --glow-cyan: 0 0 8px var(--cyan), 0 0 16px rgba(0,243,255,0.3);
+      --glow-green: 0 0 6px var(--green);
+    }
+    * { box-sizing:border-box; margin:0; padding:0; font-family:'Courier New', monospace; }
+    body {
+      background: var(--bg);
+      background-image: radial-gradient(circle at 50% 50%, rgba(0,243,255,0.04) 0%, transparent 60%),
+                        linear-gradient(rgba(0,243,255,0.05) 1px, transparent 1px),
+                        linear-gradient(90deg, rgba(0,243,255,0.05) 1px, transparent 1px);
+      background-size: 100% 100%, 30px 30px, 30px 30px;
+      color: var(--text); display:flex; justify-content:center; min-height:100vh; padding:20px;
+      overflow-x:hidden;
+    }
+    #app { max-width:720px; width:100%; background:var(--panel); padding:24px; border:1px solid var(--dim); border-radius:4px; position:relative; }
+    .scanlines::before { content:""; position:fixed; top:0; left:0; width:100%; height:100%; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.25) 3px); pointer-events:none; z-index:999; mix-blend-mode:overlay; }
+    
+    h1 { font-size:1.1rem; color:var(--cyan); margin-bottom:6px; letter-spacing:2px; text-shadow: var(--glow-cyan); }
+    .sub { font-size:0.75rem; color:var(--dim); margin-bottom:20px; border-bottom:1px dashed var(--dim); padding-bottom:8px; }
+    
+    .btn {
+      background:transparent; color:var(--cyan); border:1px solid var(--cyan); padding:10px 16px; cursor:pointer; font-family:inherit; margin:6px 4px 6px 0; transition:0.2s; position:relative; overflow:hidden;
+    }
+    .btn:hover { background:rgba(0,243,255,0.15); box-shadow:var(--glow-cyan); transform:translateY(-1px); }
+    .btn.warn { border-color:var(--warn); color:var(--warn); }
+    .btn.warn:hover { background:rgba(255,51,102,0.15); box-shadow: 0 0 8px var(--warn); }
+    .btn::after { content:""; position:absolute; bottom:0; left:0; width:0%; height:2px; background:currentColor; transition:0.3s; }
+    .btn:hover::after { width:100%; }
+
+    .progress-bar { height:8px; background:#151b25; margin:14px 0 20px; border-radius:2px; overflow:hidden; border:1px solid var(--dim); }
+    .progress-fill { height:100%; background: linear-gradient(90deg, var(--cyan), var(--green)); width:0%; transition:width 0.4s cubic-bezier(0.4,0,0.2,1); box-shadow: var(--glow-green); }
+    
+    .q-container { min-height:160px; margin-bottom:18px; background:var(--frame); padding:16px; border-left:2px solid var(--cyan); }
+    .q-text { font-size:0.95rem; margin-bottom:16px; line-height:1.5; color:#e6eef5; }
+    .options { display:flex; flex-direction:column; gap:8px; }
+    .opt {
+      padding:10px 14px; background:#0d121a; border:1px solid var(--dim); cursor:pointer; transition:0.2s; border-radius:2px; position:relative;
+    }
+    .opt:hover { border-color:var(--cyan); background:#111a24; box-shadow: inset 0 0 0 1px var(--cyan); }
+    .opt.selected { border-color:var(--green); background:rgba(5,255,161,0.08); box-shadow: inset 0 0 0 1px var(--green); }
+    .opt::before { content:"▸"; position:absolute; left:8px; opacity:0; color:var(--cyan); transition:0.2s; }
+    .opt:hover::before, .opt.selected::before { opacity:1; }
+
+    .hidden { display:none !important; }
+    
+    .result-box { padding:16px; background:var(--frame); border:1px solid var(--dim); margin-top:12px; border-radius:2px; }
+    .dim-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:12px 0; }
+    .dim-item { padding:8px; background:#0d121a; font-size:0.8rem; border:1px solid var(--dim); border-radius:2px; display:flex; justify-content:space-between; }
+    .dim-val { color:var(--cyan); font-weight:bold; }
+    
+    .type-code {
+      font-size:2.2rem; color:var(--green); letter-spacing:3px; margin:12px 0; text-align:center; text-shadow: 0 0 10px var(--green);
+      position:relative; display:inline-block; animation: glitch 3s infinite;
+    }
+    @keyframes glitch {
+      0%, 90%, 100% { transform:translate(0); }
+      92% { transform:translate(-2px, 1px); text-shadow: -2px 0 var(--magenta), 2px 0 var(--cyan); }
+      94% { transform:translate(2px, -1px); }
+      96% { transform:translate(0); }
+    }
+    .profile { font-size:0.85rem; line-height:1.6; color:#b0c4d6; margin-top:10px; white-space:pre-wrap; border-top:1px dashed var(--dim); padding-top:10px; }
+    .status { font-size:0.7rem; color:var(--dim); margin-top:12px; font-style:italic; }
+    .controls { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
+    .q-counter { font-size:0.75rem; color:var(--dim); letter-spacing:1px; }
+
+    @media (max-width:600px) {
+      #app { padding:16px; } .type-code { font-size:1.8rem; } .dim-grid { grid-template-columns:1fr; }
+    }
+  </style>
+</head>
+<body>
+  <div class="scanlines">
+    <div id="app">
+      <h1>CORE//PROFILE ANALYSIS</h1>
+      <div class="sub">SISTEMA DE EVALUACIÓN COGNITIVA // MBTI-OPS v2.1 // PERSISTENCIA LOCAL</div>
+      
+      <div id="menu">
+        <button class="btn" onclick="startTest()">INICIAR EVALUACIÓN</button>
+        <button class="btn" id="btnResume" onclick="resumeTest()" class="hidden">CARGAR SESIÓN</button>
+        <button class="btn warn" onclick="resetData()">PURGAR DATOS</button>
+        <div class="status" id="menuStatus">Sistema listo. Esperando entrada de operador.</div>
+      </div>
+
+      <div id="testScreen" class="hidden">
+        <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+        <div class="q-container">
+          <div class="q-text" id="qText"></div>
+          <div class="options" id="qOptions"></div>
+        </div>
+        <div class="controls">
+          <button class="btn" onclick="prevQ()">← ATRÁS</button>
+          <span class="q-counter" id="qCounter">00/60</span>
+          <button class="btn" onclick="nextQ()">SIGUIENTE →</button>
+        </div>
+      </div>
+
+      <div id="resultScreen" class="hidden">
+        <div style="text-align:center;"><span class="type-code" id="typeCode">----</span></div>
+        <div class="dim-grid" id="dimGrid"></div>
+        <div class="result-box">
+          <div style="font-weight:bold; color:var(--cyan); margin-bottom:8px; letter-spacing:1px;">▸ PERFIL OPERATIVO</div>
+          <div class="profile" id="profileText"></div>
+        </div>
+        <div style="margin-top:14px; text-align:center;">
+          <button class="btn" onclick="resetData(); startTest();">REINICIAR PROTOCOLO</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const Q = [
+      {t:"Prefiero interactuar con varias personas antes que estar solo.", d:"E", dir:1},
+      {t:"Me agoto rápido en reuniones largas y necesito tiempo a solas.", d:"E", dir:-1},
+      {t:"Suelo pensar en voz alta para organizar mis ideas.", d:"E", dir:1},
+      {t:"Proceso mejor la información internamente antes de hablar.", d:"E", dir:-1},
+      {t:"Busco activamente nuevas experiencias sociales.", d:"E", dir:1},
+      {t:"Me cuesta iniciar conversaciones con desconocidos.", d:"E", dir:-1},
+      {t:"Trabajo mejor en equipo que de forma aislada.", d:"E", dir:1},
+      {t:"Prefiero observar antes de participar en un grupo nuevo.", d:"E", dir:-1},
+      {t:"Me motiva el reconocimiento externo y el feedback inmediato.", d:"E", dir:1},
+      {t:"Valoro más la autosuficiencia y la independencia mental.", d:"E", dir:-1},
+      {t:"Suelo tomar la iniciativa en entornos sociales.", d:"E", dir:1},
+      {t:"Prefiero mantener un círculo reducido y profundo.", d:"E", dir:-1},
+      {t:"Me resulta fácil mantener varias conversaciones simultáneas.", d:"E", dir:1},
+      {t:"Necesito tiempo de reflexión antes de tomar decisiones grupales.", d:"E", dir:-1},
+      {t:"La energía me viene de la acción y el contacto directo.", d:"E", dir:1},
+
+      {t:"Me fijo en datos concretos y hechos verificables.", d:"S", dir:1},
+      {t:"Me interesan más las posibilidades futuras que los detalles actuales.", d:"S", dir:-1},
+      {t:"Prefiero instrucciones claras y pasos definidos.", d:"S", dir:1},
+      {t:"Disfruto descifrando patrones abstractos sin guía explícita.", d:"S", dir:-1},
+      {t:"Confío más en la experiencia práctica que en la teoría.", d:"S", dir:1},
+      {t:"Me atraen más las ideas innovadoras que los métodos probados.", d:"S", dir:-1},
+      {t:"Soy bueno recordando datos específicos y fechas.", d:"S", dir:1},
+      {t:"Suelo extrapolar escenarios hipotéticos con facilidad.", d:"S", dir:-1},
+      {t:"Prefiero soluciones reales y aplicables ya.", d:"S", dir:1},
+      {t:"Me frustra la rutina y busco significado simbólico.", d:"S", dir:-1},
+      {t:"Aprecio lo tangible y lo medible.", d:"S", dir:1},
+      {t:"Me pierdo en reflexiones teóricas o conceptuales.", d:"S", dir:-1},
+      {t:"Valoro la precisión y los hechos comprobados.", d:"S", dir:1},
+      {t:"Prefiero explorar el 'qué podría ser' antes que el 'qué es'.", d:"S", dir:-1},
+      {t:"Me siento cómodo trabajando con lo presente y lo concreto.", d:"S", dir:1},
+
+      {t:"Tomo decisiones basándome en lógica y eficiencia.", d:"T", dir:1},
+      {t:"Considero el impacto emocional en otros antes de decidir.", d:"T", dir:-1},
+      {t:"Prefiero la justicia objetiva sobre la armonía grupal.", d:"T", dir:1},
+      {t:"Adapto mis criterios según las necesidades personales de cada uno.", d:"T", dir:-1},
+      {t:"Critico constructivamente incluso si incomoda.", d:"T", dir:1},
+      {t:"Evito confrontaciones para preservar el clima.", d:"T", dir:-1},
+      {t:"Valoro la competencia y los resultados medibles.", d:"T", dir:1},
+      {t:"Valoro la empatía y el apoyo mutuo.", d:"T", dir:-1},
+      {t:"Me resulta fácil separar sentimientos de hechos.", d:"T", dir:1},
+      {t:"Mis decisiones suelen estar filtradas por mis valores personales.", d:"T", dir:-1},
+      {t:"Prefiero analizar fríamente antes de actuar.", d:"T", dir:1},
+      {t:"Sigo mi intuición moral aunque contradiga la lógica.", d:"T", dir:-1},
+      {t:"Busco la opción más racional, no la más popular.", d:"T", dir:1},
+      {t:"Priorizo el bienestar del equipo sobre la eficiencia pura.", d:"T", dir:-1},
+      {t:"Aprecio el debate intelectual por encima del consenso fácil.", d:"T", dir:1},
+
+      {t:"Planifico con antelación y sigo calendarios.", d:"J", dir:1},
+      {t:"Prefiero mantener opciones abiertas y adaptarme.", d:"J", dir:-1},
+      {t:"Me estresa dejar tareas sin cerrar.", d:"J", dir:1},
+      {t:"Me motiva la espontaneidad y el cambio de rumbo.", d:"J", dir:-1},
+      {t:"Organizo mi espacio y mi tiempo de forma estructurada.", d:"J", dir:1},
+      {t:"Trabajo mejor bajo presión de último momento.", d:"J", dir:-1},
+      {t:"Establezco metas claras y plazos definidos.", d:"J", dir:1},
+      {t:"Prefiero explorar sin un objetivo fijo.", d:"J", dir:-1},
+      {t:"Sigo listas de tareas y rutinas establecidas.", d:"J", dir:1},
+      {t:"Cambio de plan fácilmente si surge algo mejor.", d:"J", dir:-1},
+      {t:"Busco cierre y decisiones definitivas.", d:"J", dir:1},
+      {t:"Disfruto el proceso más que el resultado final.", d:"J", dir:-1},
+      {t:"Me preparo para imprevistos con anticipación.", d:"J", dir:1},
+      {t:"Confío en mi capacidad para improvisar.", d:"J", dir:-1},
+      {t:"Prefiero un entorno predecible y controlado.", d:"J", dir:1}
+    ];
+
+    const SCALE = ["Nada de acuerdo","Poco de acuerdo","Neutral","Bastante de acuerdo","Totalmente de acuerdo"];
+    const STORAGE_KEY = "mbti_ops_state_v2";
+    let state = { idx:0, answers: new Array(Q.length).fill(null), dims:{E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0} };
+
+    function init(){
+      const saved = localStorage.getItem(STORAGE_KEY);
+      const btnResume = document.getElementById("btnResume");
+      if(saved){
+        try{
+          const s = JSON.parse(saved);
+          if(s.answers && s.answers.length === Q.length){
+            state = s;
+            btnResume.classList.remove("hidden");
+            document.getElementById("menuStatus").textContent = `Sesión guardada: ${state.answers.filter(a=>a!==null).length}/${Q.length} preguntas respondidas.`;
+            return;
+          }
+        }catch(e){}
+      }
+      btnResume.classList.add("hidden");
+      document.getElementById("menuStatus").textContent = "Sistema limpio. Ninguna sesión activa.";
+    }
+
+    function startTest(){
+      state = { idx:0, answers: new Array(Q.length).fill(null), dims:{E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0} };
+      document.getElementById("btnResume").classList.add("hidden");
+      showScreen("testScreen"); renderQ(); save();
+    }
+
+    function resumeTest(){
+      showScreen("testScreen"); renderQ();
+    }
+
+    function resetData(){
+      localStorage.removeItem(STORAGE_KEY);
+      state = { idx:0, answers: new Array(Q.length).fill(null), dims:{E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0} };
+      showScreen("menu"); init();
+    }
+
+    function showScreen(id){
+      ["menu","testScreen","resultScreen"].forEach(s=>document.getElementById(s).classList.add("hidden"));
+      document.getElementById(id).classList.remove("hidden");
+    }
+
+    function renderQ(){
+      const q = Q[state.idx];
+      document.getElementById("qText").textContent = `[${String(state.idx+1).padStart(2,'0')}] ${q.t}`;
+      document.getElementById("qCounter").textContent = `${String(state.idx+1).padStart(2,'0')}/${Q.length}`;
+      document.getElementById("progress").style.width = `${((state.idx+1)/Q.length)*100}%`;
+      const opts = document.getElementById("qOptions");
+      opts.innerHTML = "";
+      SCALE.forEach((txt,i)=>{
+        const btn = document.createElement("div");
+        btn.className = "opt" + (state.answers[state.idx]===i+1?" selected":"");
+        btn.textContent = txt;
+        btn.onclick = ()=> selectOpt(i+1);
+        opts.appendChild(btn);
+      });
+    }
+
+    function selectOpt(val){
+      state.answers[state.idx] = val;
+      recalcDims();
+      renderQ();
+      save();
+      if(state.idx < Q.length-1){ setTimeout(()=>{ state.idx++; renderQ(); }, 250); }
+      else { setTimeout(showResult, 300); }
+    }
+
+    function prevQ(){ if(state.idx>0){ state.idx--; renderQ(); } }
+    function nextQ(){ if(state.idx<Q.length-1){ state.idx++; renderQ(); } }
+
+    function recalcDims(){
+      state.dims = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+      Q.forEach((q,i)=>{
+        const ans = state.answers[i];
+        if(!ans) return;
+        const score = (ans-3) * q.dir;
+        if(score>0) state.dims[q.d] += score;
+        else {
+          const opp = q.d=="E"?"I":q.d=="S"?"N":q.d=="T"?"F":"P";
+          state.dims[opp] += Math.abs(score);
+        }
+      });
+    }
+
+    function calcType(){
+      const d = state.dims;
+      return (d.E>=d.I?"E":"I")+(d.S>=d.N?"S":"N")+(d.T>=d.F?"T":"F")+(d.J>=d.P?"J":"P");
+    }
+
+    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
+
+    function showResult(){
+      showScreen("resultScreen");
+      const type = calcType();
+      document.getElementById("typeCode").textContent = type;
+      const d = state.dims;
+      const grid = document.getElementById("dimGrid");
+      grid.innerHTML = `
+        <div class="dim-item">Extroversión (E) <span class="dim-val">${d.E}</span></div><div class="dim-item">Introversión (I) <span class="dim-val">${d.I}</span></div>
+        <div class="dim-item">Sensorial (S) <span class="dim-val">${d.S}</span></div><div class="dim-item">Intuitivo (N) <span class="dim-val">${d.N}</span></div>
+        <div class="dim-item">Pensamiento (T) <span class="dim-val">${d.T}</span></div><div class="dim-item">Sentimiento (F) <span class="dim-val">${d.F}</span></div>
+        <div class="dim-item">Juicio (J) <span class="dim-val">${d.J}</span></div><div class="dim-item">Percepción (P) <span class="dim-val">${d.P}</span></div>
+      `;
+      document.getElementById("profileText").textContent = getProfile(type);
+    }
+
+    function getProfile(t){
+      const p = {
+        ENTJ:"COMANDANTE. Liderazgo estratégico, enfoque en eficiencia y resultados. Alta tolerancia a la presión. Puntos ciegos: rigidez interpersonal.",
+        ENTP:"INNOVADOR. Rápido en identificar fallos sistémicos y proponer alternativas. Puntos ciegos: dispersión y falta de cierre operativo.",
+        ESTJ:"ADMINISTRADOR. Ejecución metódica, cumplimiento de protocolos, lealtad institucional. Puntos ciegos: resistencia a lo no probado.",
+        ESTP:"TÁCTICO. Acción inmediata, adaptación en terreno, gestión de crisis. Puntos ciegos: impulsividad y desprecio por planificación larga.",
+        INTJ:"ESTRATEGA. Visión a largo plazo, arquitectura de sistemas, autonomía operativa. Puntos ciegos: sobreanálisis y frialdad percibida.",
+        INTP:"ANALISTA. Desmontaje lógico de problemas, modelado abstracto, precisión técnica. Puntos ciegos: parálisis por opción y ejecución lenta.",
+        ISTJ:"LOGÍSTICO. Confiabilidad, mantenimiento de estándares, ejecución silenciosa. Puntos ciegos: aversión al cambio y burocracia interna.",
+        ISTP:"OPERADOR. Resolución práctica, manejo de herramientas, calma bajo fuego. Puntos ciegos: aislamiento y desinterés por coordinación.",
+        ENFJ:"MENTOR. Movilización de equipos, cohesión, comunicación persuasiva. Puntos ciegos: sobrecompromiso emocional y evitación de conflictos.",
+        ENFP:"EXPLORADOR. Generación de ideas, adaptabilidad, conexión humana. Puntos ciegos: inconsistencia y dificultad con rutinas.",
+        ESFJ:"COORDINADOR. Soporte operativo, mantenimiento de clima, gestión de recursos humanos. Puntos ciegos: dependencia de aprobación externa.",
+        ESFP:"EJECUTOR TÁCTICO. Presencia en terreno, manejo de imprevistos, comunicación directa. Puntos ciegos: falta de planificación y seguimiento.",
+        INFJ:"ARQUITECTO SOCIAL. Lectura de dinámicas, visión sistémica, ética operativa. Puntos ciegos: idealismo y agotamiento por sobrecarga empática.",
+        INFP:"MEDIADOR. Alineación con valores, creatividad estructural, resiliencia moral. Puntos ciegos: evitación de confrontación y pragmatismo limitado.",
+        ISFJ:"PROTECTOR. Mantenimiento de infraestructura humana, lealtad, detalle operativo. Puntos ciegos: resistencia a innovación y autosacrificio.",
+        ISFP:"ARTESANO TÁCTICO. Adaptación silenciosa, ejecución precisa, sensibilidad al entorno. Puntos ciegos: pasividad en toma de decisiones."
+      };
+      return p[t] || "Perfil no mapeado. Revisar parámetros de entrada.";
+    }
+
+    init();
+  </script>
+</body>
+</html>
