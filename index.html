@@ -3,499 +3,475 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="CORE//PROFILE ANALYSIS - Sistema de Evaluación Cognitiva MBTI-OPS">
-  <title>CORE//PROFILE ANALYSIS v3.1</title>
+  <title>CPAS • Cognitive Profile Assessment System</title>
   <style>
-    /* ===== CORE VARIABLES ===== */
+    /* ===== PROFESSIONAL DESIGN TOKENS ===== */
     :root {
-      --bg: #030508;
-      --panel: #0a0d14;
-      --frame: #111827;
-      --cyan: #00f3ff;
-      --magenta: #ff2a6d;
-      --green: #05ffa1;
-      --amber: #ffb86c;
-      --dim: #2a3441;
-      --text: #c8d6e5;
-      --text-dim: #6b7a8f;
-      --warn: #ff3366;
-      --success: #00d9a5;
-      
-      --glow-cyan: 0 0 8px var(--cyan), 0 0 16px rgba(0,243,255,0.3), 0 0 32px rgba(0,243,255,0.1);
-      --glow-green: 0 0 6px var(--green), 0 0 12px rgba(5,255,161,0.2);
-      --glow-warn: 0 0 8px var(--warn), 0 0 16px rgba(255,51,102,0.2);
-      
-      --transition-fast: 150ms ease;
-      --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
-      
+      --bg-primary: #f8f9fa;
+      --bg-secondary: #ffffff;
+      --bg-tertiary: #e9ecef;
+      --text-primary: #1a1a2e;
+      --text-secondary: #495057;
+      --text-muted: #6c757d;
+      --border-color: #dee2e6;
+      --accent-primary: #0d6efd;
+      --accent-hover: #0b5ed7;
+      --accent-light: #e7f1ff;
+      --success: #198754;
+      --warning: #ffc107;
+      --danger: #dc3545;
+      --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1), 0 2px 4px -1px rgba(0,0,0,0.06);
+      --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1), 0 4px 6px -2px rgba(0,0,0,0.05);
       --radius-sm: 4px;
       --radius-md: 8px;
       --radius-lg: 12px;
-      --shadow-card: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
+      --transition: 150ms ease-in-out;
     }
 
-    /* ===== RESET & BASE ===== */
+    /* ===== BASE RESET ===== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    html { scroll-behavior: smooth; }
     
     body {
-      background: var(--bg);
-      background-image: 
-        radial-gradient(ellipse at 50% 0%, rgba(0,243,255,0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 100% 100%, rgba(5,255,161,0.06) 0%, transparent 50%),
-        linear-gradient(rgba(17,24,39,0.9) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(17,24,39,0.9) 1px, transparent 1px);
-      background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
-      color: var(--text);
-      font-family: 'SF Mono', 'Fira Code', 'JetBrains Mono', 'Consolas', monospace;
-      font-size: 16px;
-      line-height: 1.6;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      font-size: 14px;
+      line-height: 1.5;
       display: flex;
       justify-content: center;
       align-items: center;
       min-height: 100vh;
-      padding: 16px;
-      overflow-x: hidden;
+      padding: 24px 16px;
       -webkit-font-smoothing: antialiased;
       -moz-osx-font-smoothing: grayscale;
-      text-rendering: optimizeLegibility;
     }
-
-    /* ===== SCANLINE EFFECT ===== */
-    .scanlines::before {
-      content: "";
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.15) 3px);
-      pointer-events: none;
-      z-index: 1000;
-      mix-blend-mode: multiply;
-      animation: scanline 8s linear infinite;
-    }
-    @keyframes scanline { 0% { background-position: 0 0; } 100% { background-position: 0 100%; } }
 
     /* ===== APP CONTAINER ===== */
     #app {
       width: 100%;
-      max-width: 760px;
-      background: var(--panel);
-      border: 1px solid var(--dim);
+      max-width: 720px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
       border-radius: var(--radius-lg);
-      padding: 28px;
-      position: relative;
-      box-shadow: var(--shadow-card);
-      backdrop-filter: blur(8px);
-      transition: opacity var(--transition-normal), transform var(--transition-normal);
+      box-shadow: var(--shadow-lg);
+      overflow: hidden;
     }
-    #app::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--cyan), var(--green), var(--cyan), transparent);
-      animation: borderGlow 3s ease-in-out infinite;
-    }
-    @keyframes borderGlow { 0%, 100% { opacity: 0.6; } 50% { opacity: 1; } }
 
-    /* ===== TYPOGRAPHY ===== */
-    h1 {
-      font-size: 1.25rem;
-      color: var(--cyan);
-      margin-bottom: 4px;
-      letter-spacing: 3px;
-      text-shadow: var(--glow-cyan);
-      text-transform: uppercase;
+    /* ===== HEADER ===== */
+    .app-header {
+      padding: 20px 24px;
+      border-bottom: 1px solid var(--border-color);
+      background: var(--bg-secondary);
+    }
+    
+    .app-title {
+      font-size: 1.125rem;
       font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 4px;
+      letter-spacing: -0.02em;
+    }
+    
+    .app-subtitle {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      font-weight: 400;
+    }
+    
+    .app-meta {
       display: flex;
       align-items: center;
-      gap: 12px;
-    }
-    h1::before { content: "◈"; animation: pulse 2s ease-in-out infinite; }
-    @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.7; transform: scale(0.95); } }
-    
-    .sub {
+      gap: 16px;
+      margin-top: 12px;
+      padding-top: 12px;
+      border-top: 1px solid var(--border-color);
       font-size: 0.75rem;
-      color: var(--text-dim);
-      margin-bottom: 24px;
-      padding-bottom: 12px;
-      border-bottom: 1px dashed var(--dim);
-      letter-spacing: 1px;
-      text-transform: uppercase;
+      color: var(--text-muted);
     }
-
-    /* ===== BUTTONS ===== */
-    .btn {
-      background: transparent;
-      color: var(--cyan);
-      border: 1px solid var(--cyan);
-      padding: 12px 20px;
-      cursor: pointer;
-      font: inherit;
-      font-size: 0.875rem;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      transition: all var(--transition-fast);
-      position: relative;
-      overflow: hidden;
-      border-radius: var(--radius-sm);
-      display: inline-flex;
+    
+    .app-meta-item {
+      display: flex;
       align-items: center;
-      gap: 8px;
-      min-height: 44px;
+      gap: 6px;
     }
-    .btn:hover:not(:disabled) {
-      background: rgba(0, 243, 255, 0.12);
-      box-shadow: var(--glow-cyan);
-      transform: translateY(-2px);
-      border-color: var(--cyan);
-    }
-    .btn:active:not(:disabled) { transform: translateY(0); }
-    .btn:focus-visible { outline: 2px solid var(--cyan); outline-offset: 2px; }
-    .btn::after {
+    
+    .app-meta-item::before {
       content: "";
-      position: absolute;
-      bottom: 0; left: 0;
-      width: 0%;
-      height: 2px;
-      background: currentColor;
-      transition: width var(--transition-normal);
-    }
-    .btn:hover::after { width: 100%; }
-    .btn.warn { border-color: var(--warn); color: var(--warn); }
-    .btn.warn:hover:not(:disabled) { background: rgba(255, 51, 102, 0.12); box-shadow: var(--glow-warn); }
-    .btn:disabled { opacity: 0.4; cursor: not-allowed; transform: none !important; }
-    .btn-primary { background: rgba(0, 243, 255, 0.1); border-color: var(--cyan); }
-    .btn-success { border-color: var(--green); color: var(--green); }
-    .btn-success:hover:not(:disabled) { background: rgba(5, 255, 161, 0.12); box-shadow: var(--glow-green); }
-
-    /* ===== PROGRESS BAR ===== */
-    .progress-wrapper { margin: 20px 0 28px; }
-    .progress-bar {
+      display: inline-block;
+      width: 6px;
       height: 6px;
-      background: var(--frame);
-      border-radius: 3px;
-      overflow: hidden;
-      border: 1px solid var(--dim);
-      position: relative;
+      background: var(--accent-primary);
+      border-radius: 50%;
     }
+
+    /* ===== CONTENT AREA ===== */
+    .app-content {
+      padding: 24px;
+    }
+
+    /* ===== PROGRESS ===== */
+    .progress-section {
+      margin-bottom: 24px;
+    }
+    
+    .progress-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 8px;
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+    }
+    
+    .progress-bar {
+      height: 8px;
+      background: var(--bg-tertiary);
+      border-radius: 4px;
+      overflow: hidden;
+    }
+    
     .progress-fill {
       height: 100%;
-      background: linear-gradient(90deg, var(--cyan), var(--green));
+      background: var(--accent-primary);
       width: 0%;
-      transition: width var(--transition-normal);
-      box-shadow: var(--glow-green);
-      position: relative;
-    }
-    .progress-fill::after {
-      content: "";
-      position: absolute;
-      top: 0; right: 0;
-      width: 2px;
-      height: 100%;
-      background: white;
-      opacity: 0.8;
-      animation: progressScan 1s ease-in-out infinite;
-    }
-    @keyframes progressScan { 0%, 100% { opacity: 0; } 50% { opacity: 0.8; } }
-    .progress-text {
-      font-size: 0.75rem;
-      color: var(--text-dim);
-      text-align: right;
-      margin-top: 6px;
-      letter-spacing: 1px;
+      transition: width var(--transition);
+      border-radius: 4px;
     }
 
-    /* ===== QUESTION CONTAINER ===== */
-    .q-container {
-      min-height: 180px;
-      margin-bottom: 24px;
-      background: var(--frame);
+    /* ===== QUESTION CARD ===== */
+    .question-card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
       padding: 20px;
-      border-left: 3px solid var(--cyan);
-      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-      position: relative;
-      transition: border-color var(--transition-fast);
+      margin-bottom: 20px;
     }
-    .q-container::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--dim), transparent);
-    }
-    .q-header {
+    
+    .question-meta {
       display: flex;
       justify-content: space-between;
       align-items: center;
       margin-bottom: 12px;
       font-size: 0.75rem;
-      color: var(--text-dim);
-      letter-spacing: 1px;
+      color: var(--text-muted);
       text-transform: uppercase;
+      letter-spacing: 0.05em;
+      font-weight: 500;
     }
-    .q-text {
+    
+    .question-text {
       font-size: 1rem;
+      color: var(--text-primary);
       line-height: 1.6;
-      color: var(--text);
-      min-height: 3.2em;
-      display: flex;
-      align-items: center;
-      white-space: normal;
-      word-wrap: break-word;
-      hyphens: auto;
-      text-rendering: optimizeLegibility;
-      -webkit-text-stroke: 0.3px rgba(200,214,229,0.3);
+      margin-bottom: 16px;
     }
 
     /* ===== OPTIONS ===== */
-    .options { display: flex; flex-direction: column; gap: 10px; margin-top: 8px; }
-    .opt {
-      padding: 14px 16px;
-      background: #0d121a;
-      border: 1px solid var(--dim);
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      transition: all var(--transition-fast);
-      position: relative;
-      font-size: 0.9rem;
+    .options-group {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+    
+    .option-label {
       display: flex;
       align-items: center;
-      gap: 12px;
+      padding: 12px 16px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition);
+      font-size: 0.9rem;
     }
-    .opt::before {
-      content: "○";
-      color: var(--dim);
-      font-size: 1.1rem;
-      transition: all var(--transition-fast);
-      min-width: 20px;
+    
+    .option-label:hover {
+      border-color: var(--accent-primary);
+      background: var(--accent-light);
     }
-    .opt:hover {
-      border-color: var(--cyan);
-      background: rgba(0, 243, 255, 0.08);
-      transform: translateX(4px);
+    
+    .option-label.selected {
+      border-color: var(--accent-primary);
+      background: var(--accent-light);
+      position: relative;
     }
-    .opt:hover::before { content: "◉"; color: var(--cyan); }
-    .opt.selected {
-      border-color: var(--green);
-      background: rgba(5, 255, 161, 0.1);
-      box-shadow: inset 0 0 0 1px var(--green);
+    
+    .option-label.selected::after {
+      content: "✓";
+      position: absolute;
+      right: 16px;
+      color: var(--accent-primary);
+      font-weight: 600;
     }
-    .opt.selected::before { content: "●"; color: var(--green); text-shadow: 0 0 8px var(--green); }
-    .opt:focus-visible { outline: 2px solid var(--cyan); outline-offset: -1px; }
+    
+    .option-input {
+      margin-right: 12px;
+      accent-color: var(--accent-primary);
+    }
 
-    /* ===== CONTROLS ===== */
-    .controls {
+    /* ===== NAVIGATION ===== */
+    .nav-controls {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
       padding-top: 16px;
-      border-top: 1px solid var(--dim);
+      border-top: 1px solid var(--border-color);
     }
-    .q-counter {
-      font-size: 0.75rem;
-      color: var(--text-dim);
-      letter-spacing: 2px;
-      font-weight: 600;
+    
+    .nav-group {
+      display: flex;
+      gap: 8px;
     }
-    .nav-group { display: flex; gap: 8px; }
-
-    /* ===== SCREENS ===== */
-    .screen { animation: fadeIn var(--transition-normal); }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
-    .hidden { display: none !important; }
-
-    /* ===== MENU ===== */
-    .menu-actions { display: flex; flex-direction: column; gap: 12px; margin: 24px 0; }
-    .status {
-      font-size: 0.75rem;
-      color: var(--text-dim);
-      padding: 12px;
-      background: var(--frame);
+    
+    .btn {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      padding: 10px 20px;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text-primary);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
-      border-left: 2px solid var(--dim);
-      font-style: italic;
+      cursor: pointer;
+      transition: all var(--transition);
+      min-height: 40px;
     }
-    .status.success { border-left-color: var(--success); color: var(--success); }
-    .status.warn { border-left-color: var(--warn); color: var(--warn); }
+    
+    .btn:hover:not(:disabled) {
+      background: var(--bg-tertiary);
+      border-color: #adb5bd;
+    }
+    
+    .btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+    }
+    
+    .btn-primary {
+      background: var(--accent-primary);
+      color: white;
+      border-color: var(--accent-primary);
+    }
+    
+    .btn-primary:hover:not(:disabled) {
+      background: var(--accent-hover);
+      border-color: var(--accent-hover);
+    }
+    
+    .btn-danger {
+      background: var(--danger);
+      color: white;
+      border-color: var(--danger);
+    }
+    
+    .btn-danger:hover:not(:disabled) {
+      background: #bb2d3b;
+      border-color: #bb2d3b;
+    }
+    
+    .counter {
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      font-variant-numeric: tabular-nums;
+    }
+
+    /* ===== MENU SCREEN ===== */
+    .menu-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 24px 0;
+    }
+    
+    .status-message {
+      padding: 12px 16px;
+      background: var(--bg-tertiary);
+      border-radius: var(--radius-sm);
+      font-size: 0.875rem;
+      color: var(--text-secondary);
+      border-left: 3px solid var(--border-color);
+    }
+    
+    .status-message.success {
+      border-left-color: var(--success);
+      background: #d1e7dd;
+      color: #0f5132;
+    }
+    
+    .status-message.warn {
+      border-left-color: var(--warning);
+      background: #fff3cd;
+      color: #664d03;
+    }
 
     /* ===== RESULTS ===== */
     .result-header {
       text-align: center;
-      padding: 20px 0;
-      border-bottom: 1px dashed var(--dim);
-      margin-bottom: 20px;
+      padding: 24px 0;
+      border-bottom: 1px solid var(--border-color);
+      margin-bottom: 24px;
     }
-    .type-code {
-      font-size: 3rem;
-      color: var(--green);
-      letter-spacing: 8px;
-      text-shadow: var(--glow-green);
-      position: relative;
-      display: inline-block;
-      animation: glitch 4s infinite;
+    
+    .result-type {
+      font-size: 2.5rem;
       font-weight: 700;
+      color: var(--text-primary);
+      letter-spacing: -0.03em;
+      margin-bottom: 8px;
     }
-    @keyframes glitch {
-      0%, 90%, 100% { transform: translate(0); text-shadow: var(--glow-green); }
-      92% { transform: translate(-2px, 1px); text-shadow: -2px 0 var(--magenta), 2px 0 var(--cyan); }
-      94% { transform: translate(2px, -1px); }
-      96% { transform: translate(0); }
-      98% { transform: translate(-1px, 0); text-shadow: 0 -2px var(--cyan), 0 2px var(--magenta); }
+    
+    .result-label {
+      font-size: 1rem;
+      color: var(--text-secondary);
+      font-weight: 500;
     }
-    .type-label {
-      font-size: 0.875rem;
-      color: var(--cyan);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-top: 8px;
+    
+    .dimensions-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      margin: 24px 0;
     }
-    .dim-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin: 20px 0; }
-    .dim-item {
-      padding: 12px 14px;
-      background: var(--frame);
-      border: 1px solid var(--dim);
-      border-radius: var(--radius-sm);
-      font-size: 0.85rem;
+    
+    .dimension-item {
       display: flex;
       justify-content: space-between;
       align-items: center;
-      transition: border-color var(--transition-fast);
-    }
-    .dim-item:hover { border-color: var(--cyan); }
-    .dim-val {
-      color: var(--cyan);
-      font-weight: 700;
-      font-size: 1rem;
-      min-width: 32px;
-      text-align: right;
-    }
-    .dim-bar {
-      height: 4px;
-      background: var(--dim);
-      border-radius: 2px;
-      margin-top: 6px;
-      overflow: hidden;
-    }
-    .dim-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--cyan), var(--green));
-      width: 0%;
-      transition: width var(--transition-slow);
-    }
-    .result-box {
-      padding: 20px;
-      background: var(--frame);
-      border: 1px solid var(--dim);
+      padding: 12px 16px;
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
       border-radius: var(--radius-sm);
-      margin: 20px 0;
-    }
-    .result-box-title {
-      font-weight: 600;
-      color: var(--cyan);
-      margin-bottom: 12px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
       font-size: 0.875rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
     }
-    .result-box-title::before { content: "▸"; color: var(--green); }
-    .profile {
+    
+    .dimension-value {
+      font-weight: 600;
+      color: var(--accent-primary);
+      font-variant-numeric: tabular-nums;
+    }
+    
+    .result-card {
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-md);
+      padding: 20px;
+      margin: 24px 0;
+    }
+    
+    .result-card-title {
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: 12px;
+      padding-bottom: 8px;
+      border-bottom: 1px solid var(--border-color);
+    }
+    
+    .profile-description {
       font-size: 0.9rem;
-      line-height: 1.7;
-      color: var(--text);
-      white-space: pre-wrap;
+      color: var(--text-secondary);
+      line-height: 1.6;
     }
-    .profile strong { color: var(--cyan); }
-    .profile em { color: var(--amber); font-style: normal; }
-
-    /* ===== ACTIONS ===== */
+    
+    .profile-description strong {
+      color: var(--text-primary);
+      font-weight: 600;
+    }
+    
+    .profile-description em {
+      color: var(--text-muted);
+      font-style: normal;
+    }
+    
     .result-actions {
       display: flex;
       flex-wrap: wrap;
-      gap: 10px;
+      gap: 8px;
       justify-content: center;
-      margin-top: 24px;
-      padding-top: 20px;
-      border-top: 1px dashed var(--dim);
+      padding-top: 24px;
+      border-top: 1px solid var(--border-color);
     }
 
-    /* ===== TOAST NOTIFICATIONS ===== */
+    /* ===== MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1000;
+      padding: 20px;
+    }
+    
+    .modal {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      max-width: 400px;
+      width: 100%;
+      box-shadow: var(--shadow-lg);
+    }
+    
+    .modal-title {
+      font-size: 1.125rem;
+      font-weight: 600;
+      color: var(--text-primary);
+      margin-bottom: 12px;
+    }
+    
+    .modal-text {
+      color: var(--text-secondary);
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      line-height: 1.5;
+    }
+    
+    .modal-actions {
+      display: flex;
+      gap: 8px;
+      justify-content: flex-end;
+    }
+
+    /* ===== TOAST ===== */
     .toast {
       position: fixed;
       bottom: 24px;
       right: 24px;
-      padding: 14px 20px;
-      background: var(--panel);
-      border: 1px solid var(--cyan);
+      padding: 12px 16px;
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
       border-radius: var(--radius-md);
-      color: var(--text);
+      color: var(--text-primary);
       font-size: 0.875rem;
-      box-shadow: var(--glow-cyan), var(--shadow-card);
+      box-shadow: var(--shadow-md);
       z-index: 2000;
       display: flex;
       align-items: center;
-      gap: 10px;
-      animation: slideIn 300ms ease, fadeOut 300ms ease 2700ms forwards;
-      max-width: 320px;
+      gap: 8px;
+      animation: slideIn 200ms ease, fadeOut 200ms ease 2800ms forwards;
+      max-width: 300px;
     }
-    .toast.success { border-color: var(--success); }
-    .toast.warn { border-color: var(--warn); }
-    .toast::before { content: "✓"; color: var(--success); font-weight: bold; }
-    .toast.warn::before { content: "⚠"; color: var(--warn); }
-    @keyframes slideIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    @keyframes fadeOut { to { opacity: 0; transform: translateX(20px); } }
-
-    /* ===== CONFIRM MODAL ===== */
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(3, 5, 8, 0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1500;
-      padding: 20px;
-      animation: fadeIn var(--transition-fast);
+    
+    .toast.success { border-left: 3px solid var(--success); }
+    .toast.warn { border-left: 3px solid var(--warning); }
+    
+    @keyframes slideIn {
+      from { transform: translateX(100%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
     }
-    .modal {
-      background: var(--panel);
-      border: 1px solid var(--warn);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      max-width: 420px;
-      width: 100%;
-      box-shadow: var(--glow-warn), var(--shadow-card);
-    }
-    .modal-title { color: var(--warn); font-size: 1.1rem; margin-bottom: 12px; letter-spacing: 1px; }
-    .modal-text { color: var(--text-dim); margin-bottom: 20px; font-size: 0.9rem; line-height: 1.6; }
-    .modal-actions { display: flex; gap: 10px; justify-content: flex-end; }
-
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 640px) {
-      #app { padding: 20px 16px; }
-      h1 { font-size: 1.1rem; }
-      .type-code { font-size: 2.4rem; letter-spacing: 4px; }
-      .dim-grid { grid-template-columns: 1fr; }
-      .controls { flex-direction: column; align-items: stretch; }
-      .nav-group { justify-content: center; }
-      .q-text { font-size: 0.95rem; }
-      .opt { padding: 12px 14px; font-size: 0.875rem; }
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateX(20px); }
     }
 
-    /* ===== ACCESSIBILITY ===== */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
+    /* ===== UTILITIES ===== */
+    .hidden { display: none !important; }
     .sr-only {
       position: absolute;
       width: 1px; height: 1px;
@@ -505,189 +481,243 @@
       white-space: nowrap;
       border: 0;
     }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 640px) {
+      #app { border-radius: var(--radius-md); }
+      .app-header, .app-content { padding: 16px; }
+      .result-type { font-size: 2rem; }
+      .dimensions-grid { grid-template-columns: 1fr; }
+      .nav-controls { flex-direction: column; gap: 12px; align-items: stretch; }
+      .nav-group { justify-content: center; }
+    }
+
+    /* ===== PRINT ===== */
+    @media print {
+      body { background: white; padding: 0; }
+      #app { box-shadow: none; border: none; max-width: none; }
+      .btn, .nav-controls, .result-actions { display: none; }
+    }
   </style>
 </head>
 <body>
-  <div class="scanlines">
-    <div id="app" role="application" aria-label="Sistema de Evaluación Cognitiva">
+  <div id="app" role="application" aria-label="Cognitive Profile Assessment System">
+    
+    <!-- HEADER -->
+    <header class="app-header">
+      <h1 class="app-title">Cognitive Profile Assessment System</h1>
+      <p class="app-subtitle">Personnel Evaluation Module • Version 3.1.2</p>
+      <div class="app-meta">
+        <span class="app-meta-item">Classification: Internal Use</span>
+        <span class="app-meta-item">Compliance: ISO 10667-2:2021</span>
+        <span class="app-meta-item">Data Retention: 90 days</span>
+      </div>
+    </header>
+
+    <!-- MENU SCREEN -->
+    <section id="menu" class="app-content screen" aria-live="polite">
+      <div class="menu-actions">
+        <button class="btn btn-primary" onclick="startTest()" aria-label="Start new assessment">
+          Start Assessment
+        </button>
+        <button class="btn" id="btnResume" onclick="resumeTest()" aria-label="Resume saved session" hidden>
+          Resume Session
+        </button>
+        <button class="btn btn-danger" onclick="confirmReset()" aria-label="Clear saved data">
+          Clear Session Data
+        </button>
+      </div>
+      <div class="status-message" id="menuStatus" role="status">
+        System initialized. Ready for operator input.
+      </div>
+    </section>
+
+    <!-- TEST SCREEN -->
+    <section id="testScreen" class="app-content screen hidden" aria-live="polite">
+      <div class="progress-section">
+        <div class="progress-header">
+          <span>Assessment Progress</span>
+          <span id="progressText">0 of 60 items completed</span>
+        </div>
+        <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+          <div class="progress-fill" id="progress" aria-hidden="true"></div>
+        </div>
+      </div>
       
-      <!-- HEADER -->
-      <header>
-        <h1 aria-label="Core Profile Analysis">CORE//PROFILE</h1>
-        <div class="sub">MBTI-OPS v3.1 • Evaluación Cognitiva • Persistencia Local</div>
-      </header>
+      <div class="question-card">
+        <div class="question-meta">
+          <span id="qDimension">Dimension: —</span>
+          <span id="qNumber">Item 01 of 60</span>
+        </div>
+        <p class="question-text" id="qText" aria-live="assertive"></p>
+        
+        <fieldset class="options-group" id="qOptions" role="radiogroup" aria-label="Response options">
+          <!-- Options injected by JS -->
+        </fieldset>
+      </div>
+      
+      <div class="nav-controls">
+        <div class="nav-group">
+          <button class="btn" onclick="prevQ()" id="btnPrev" aria-label="Previous item" disabled>Previous</button>
+          <button class="btn" onclick="nextQ()" id="btnNext" aria-label="Next item" disabled>Next</button>
+        </div>
+        <span class="counter" id="qCounter" aria-live="polite">00/60</span>
+      </div>
+    </section>
 
-      <!-- MENU SCREEN -->
-      <section id="menu" class="screen" aria-live="polite">
-        <div class="menu-actions">
-          <button class="btn btn-primary" onclick="startTest()" aria-label="Iniciar nueva evaluación">
-            <span>▶</span> INICIAR EVALUACIÓN
-          </button>
-          <button class="btn" id="btnResume" onclick="resumeTest()" aria-label="Continuar sesión guardada" hidden>
-            <span>↻</span> CARGAR SESIÓN
-          </button>
-          <button class="btn warn" onclick="confirmReset()" aria-label="Borrar datos guardados">
-            <span>⨯</span> PURGAR DATOS
-          </button>
-        </div>
-        <div class="status" id="menuStatus" role="status">
-          Sistema inicializado. Esperando entrada de operador...
-        </div>
-      </section>
+    <!-- RESULT SCREEN -->
+    <section id="resultScreen" class="app-content screen hidden" aria-live="polite">
+      <div class="result-header">
+        <div class="result-type" id="typeCode" aria-label="Personality type">----</div>
+        <div class="result-label" id="typeLabel">Analysis in progress...</div>
+      </div>
+      
+      <div class="dimensions-grid" id="dimGrid" role="list" aria-label="Cognitive dimensions">
+        <!-- Dimensions injected by JS -->
+      </div>
+      
+      <div class="result-card">
+        <div class="result-card-title">Profile Summary</div>
+        <div class="profile-description" id="profileText"></div>
+      </div>
+      
+      <div class="result-actions">
+        <button class="btn" onclick="copyResult()" aria-label="Copy results to clipboard">
+          Copy Results
+        </button>
+        <button class="btn" onclick="exportJSON()" aria-label="Export as JSON">
+          Export Data
+        </button>
+        <button class="btn btn-danger" onclick="resetAndRestart()" aria-label="Start new assessment">
+          New Assessment
+        </button>
+      </div>
+    </section>
 
-      <!-- TEST SCREEN -->
-      <section id="testScreen" class="screen hidden" aria-live="polite">
-        <div class="progress-wrapper">
-          <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-            <div class="progress-fill" id="progress" aria-hidden="true"></div>
-          </div>
-          <div class="progress-text" id="progressText">0/60 preguntas</div>
-        </div>
-        
-        <div class="q-container">
-          <div class="q-header">
-            <span id="qDimension">DIMENSIÓN: --</span>
-            <span id="qNumber">01/60</span>
-          </div>
-          <div class="q-text" id="qText" aria-live="assertive"></div>
-          
-          <fieldset class="options" id="qOptions" role="radiogroup" aria-label="Opciones de respuesta"></fieldset>
-        </div>
-        
-        <div class="controls">
-          <div class="nav-group">
-            <button class="btn" onclick="prevQ()" id="btnPrev" aria-label="Pregunta anterior" disabled>← ATRÁS</button>
-            <button class="btn" onclick="nextQ()" id="btnNext" aria-label="Siguiente pregunta" disabled>SIGUIENTE →</button>
-          </div>
-          <span class="q-counter" id="qCounter" aria-live="polite">00/60</span>
-        </div>
-      </section>
+    <!-- FOOTER -->
+    <footer style="padding: 16px 24px; border-top: 1px solid var(--border-color); font-size: 0.75rem; color: var(--text-muted); text-align: center;">
+      Cognitive Profile Assessment System v3.1.2 • © 2026 Assessment Technologies Ltd.
+    </footer>
 
-      <!-- RESULT SCREEN -->
-      <section id="resultScreen" class="screen hidden" aria-live="polite">
-        <div class="result-header">
-          <div class="type-code" id="typeCode" aria-label="Tipo de personalidad">----</div>
-          <div class="type-label" id="typeLabel">ANALIZANDO PATRONES...</div>
-        </div>
-        
-        <div class="dim-grid" id="dimGrid" role="list" aria-label="Dimensiones cognitivas"></div>
-        
-        <div class="result-box">
-          <div class="result-box-title">PERFIL OPERATIVO</div>
-          <div class="profile" id="profileText"></div>
-        </div>
-        
-        <div class="result-actions">
-          <button class="btn btn-success" onclick="copyResult()" aria-label="Copiar resultados">📋 COPIAR RESULTADO</button>
-          <button class="btn" onclick="exportJSON()" aria-label="Exportar como JSON">💾 EXPORTAR JSON</button>
-          <button class="btn warn" onclick="resetAndRestart()" aria-label="Reiniciar protocolo">↻ REINICIAR</button>
-        </div>
-      </section>
-
-    </div>
   </div>
 
   <!-- TOAST CONTAINER -->
   <div id="toastContainer" aria-live="assertive" aria-atomic="true"></div>
 
   <script>
-    /* ===== DATA: QUESTIONS ===== */
+    /* ===== QUESTION DATA ===== */
     const QUESTIONS = [
-      {t:"Prefiero interactuar con varias personas antes que estar solo.", d:"E", dir:1},
-      {t:"Me agoto rápido en reuniones largas y necesito tiempo a solas.", d:"E", dir:-1},
-      {t:"Suelo pensar en voz alta para organizar mis ideas.", d:"E", dir:1},
-      {t:"Proceso mejor la información internamente antes de hablar.", d:"E", dir:-1},
-      {t:"Busco activamente nuevas experiencias sociales.", d:"E", dir:1},
-      {t:"Me cuesta iniciar conversaciones con desconocidos.", d:"E", dir:-1},
-      {t:"Trabajo mejor en equipo que de forma aislada.", d:"E", dir:1},
-      {t:"Prefiero observar antes de participar en un grupo nuevo.", d:"E", dir:-1},
-      {t:"Me motiva el reconocimiento externo y el feedback inmediato.", d:"E", dir:1},
-      {t:"Valoro más la autosuficiencia y la independencia mental.", d:"E", dir:-1},
-      {t:"Suelo tomar la iniciativa en entornos sociales.", d:"E", dir:1},
-      {t:"Prefiero mantener un círculo reducido y profundo.", d:"E", dir:-1},
-      {t:"Me resulta fácil mantener varias conversaciones simultáneas.", d:"E", dir:1},
-      {t:"Necesito tiempo de reflexión antes de tomar decisiones grupales.", d:"E", dir:-1},
-      {t:"La energía me viene de la acción y el contacto directo.", d:"E", dir:1},
-      {t:"Me fijo en datos concretos y hechos verificables.", d:"S", dir:1},
-      {t:"Me interesan más las posibilidades futuras que los detalles actuales.", d:"S", dir:-1},
-      {t:"Prefiero instrucciones claras y pasos definidos.", d:"S", dir:1},
-      {t:"Disfruto descifrando patrones abstractos sin guía explícita.", d:"S", dir:-1},
-      {t:"Confío más en la experiencia práctica que en la teoría.", d:"S", dir:1},
-      {t:"Me atraen más las ideas innovadoras que los métodos probados.", d:"S", dir:-1},
-      {t:"Soy bueno recordando datos específicos y fechas.", d:"S", dir:1},
-      {t:"Suelo extrapolar escenarios hipotéticos con facilidad.", d:"S", dir:-1},
-      {t:"Prefiero soluciones reales y aplicables ya.", d:"S", dir:1},
-      {t:"Me frustra la rutina y busco significado simbólico.", d:"S", dir:-1},
-      {t:"Aprecio lo tangible y lo medible.", d:"S", dir:1},
-      {t:"Me pierdo en reflexiones teóricas o conceptuales.", d:"S", dir:-1},
-      {t:"Valoro la precisión y los hechos comprobados.", d:"S", dir:1},
-      {t:"Prefiero explorar el 'qué podría ser' antes que el 'qué es'.", d:"S", dir:-1},
-      {t:"Me siento cómodo trabajando con lo presente y lo concreto.", d:"S", dir:1},
-      {t:"Tomo decisiones basándome en lógica y eficiencia.", d:"T", dir:1},
-      {t:"Considero el impacto emocional en otros antes de decidir.", d:"T", dir:-1},
-      {t:"Prefiero la justicia objetiva sobre la armonía grupal.", d:"T", dir:1},
-      {t:"Adapto mis criterios según las necesidades personales de cada uno.", d:"T", dir:-1},
-      {t:"Critico constructivamente incluso si incomoda.", d:"T", dir:1},
-      {t:"Evito confrontaciones para preservar el clima.", d:"T", dir:-1},
-      {t:"Valoro la competencia y los resultados medibles.", d:"T", dir:1},
-      {t:"Valoro la empatía y el apoyo mutuo.", d:"T", dir:-1},
-      {t:"Me resulta fácil separar sentimientos de hechos.", d:"T", dir:1},
-      {t:"Mis decisiones suelen estar filtradas por mis valores personales.", d:"T", dir:-1},
-      {t:"Prefiero analizar fríamente antes de actuar.", d:"T", dir:1},
-      {t:"Sigo mi intuición moral aunque contradiga la lógica.", d:"T", dir:-1},
-      {t:"Busco la opción más racional, no la más popular.", d:"T", dir:1},
-      {t:"Priorizo el bienestar del equipo sobre la eficiencia pura.", d:"T", dir:-1},
-      {t:"Aprecio el debate intelectual por encima del consenso fácil.", d:"T", dir:1},
-      {t:"Planifico con antelación y sigo calendarios.", d:"J", dir:1},
-      {t:"Prefiero mantener opciones abiertas y adaptarme.", d:"J", dir:-1},
-      {t:"Me estresa dejar tareas sin cerrar.", d:"J", dir:1},
-      {t:"Me motiva la espontaneidad y el cambio de rumbo.", d:"J", dir:-1},
-      {t:"Organizo mi espacio y mi tiempo de forma estructurada.", d:"J", dir:1},
-      {t:"Trabajo mejor bajo presión de último momento.", d:"J", dir:-1},
-      {t:"Establezco metas claras y plazos definidos.", d:"J", dir:1},
-      {t:"Prefiero explorar sin un objetivo fijo.", d:"J", dir:-1},
-      {t:"Sigo listas de tareas y rutinas establecidas.", d:"J", dir:1},
-      {t:"Cambio de plan fácilmente si surge algo mejor.", d:"J", dir:-1},
-      {t:"Busco cierre y decisiones definitivas.", d:"J", dir:1},
-      {t:"Disfruto el proceso más que el resultado final.", d:"J", dir:-1},
-      {t:"Me preparo para imprevistos con anticipación.", d:"J", dir:1},
-      {t:"Confío en mi capacidad para improvisar.", d:"J", dir:-1},
-      {t:"Prefiero un entorno predecible y controlado.", d:"J", dir:1}
+      {t:"I prefer interacting with several people rather than being alone.", d:"E", dir:1},
+      {t:"I become tired quickly in long meetings and need time alone.", d:"E", dir:-1},
+      {t:"I tend to think out loud to organize my ideas.", d:"E", dir:1},
+      {t:"I process information better internally before speaking.", d:"E", dir:-1},
+      {t:"I actively seek new social experiences.", d:"E", dir:1},
+      {t:"I find it difficult to start conversations with strangers.", d:"E", dir:-1},
+      {t:"I work better in a team than in isolation.", d:"E", dir:1},
+      {t:"I prefer to observe before participating in a new group.", d:"E", dir:-1},
+      {t:"External recognition and immediate feedback motivate me.", d:"E", dir:1},
+      {t:"I value self-sufficiency and mental independence more.", d:"E", dir:-1},
+      {t:"I tend to take initiative in social environments.", d:"E", dir:1},
+      {t:"I prefer to maintain a small, deep circle of contacts.", d:"E", dir:-1},
+      {t:"I find it easy to maintain several simultaneous conversations.", d:"E", dir:1},
+      {t:"I need reflection time before making group decisions.", d:"E", dir:-1},
+      {t:"My energy comes from action and direct contact.", d:"E", dir:1},
+      {t:"I focus on concrete data and verifiable facts.", d:"S", dir:1},
+      {t:"I am more interested in future possibilities than current details.", d:"S", dir:-1},
+      {t:"I prefer clear instructions and defined steps.", d:"S", dir:1},
+      {t:"I enjoy deciphering abstract patterns without explicit guidance.", d:"S", dir:-1},
+      {t:"I trust practical experience more than theory.", d:"S", dir:1},
+      {t:"I am more attracted to innovative ideas than proven methods.", d:"S", dir:-1},
+      {t:"I am good at remembering specific data and dates.", d:"S", dir:1},
+      {t:"I tend to extrapolate hypothetical scenarios with ease.", d:"S", dir:-1},
+      {t:"I prefer real, immediately applicable solutions.", d:"S", dir:1},
+      {t:"Routine frustrates me; I seek symbolic meaning.", d:"S", dir:-1},
+      {t:"I appreciate the tangible and measurable.", d:"S", dir:1},
+      {t:"I get lost in theoretical or conceptual reflections.", d:"S", dir:-1},
+      {t:"I value precision and verified facts.", d:"S", dir:1},
+      {t:"I prefer exploring 'what could be' over 'what is'.", d:"S", dir:-1},
+      {t:"I feel comfortable working with the present and concrete.", d:"S", dir:1},
+      {t:"I make decisions based on logic and efficiency.", d:"T", dir:1},
+      {t:"I consider the emotional impact on others before deciding.", d:"T", dir:-1},
+      {t:"I prefer objective justice over group harmony.", d:"T", dir:1},
+      {t:"I adapt my criteria according to each person's personal needs.", d:"T", dir:-1},
+      {t:"I offer constructive criticism even if it causes discomfort.", d:"T", dir:1},
+      {t:"I avoid confrontations to preserve the climate.", d:"T", dir:-1},
+      {t:"I value competence and measurable results.", d:"T", dir:1},
+      {t:"I value empathy and mutual support.", d:"T", dir:-1},
+      {t:"I find it easy to separate feelings from facts.", d:"T", dir:1},
+      {t:"My decisions are often filtered by my personal values.", d:"T", dir:-1},
+      {t:"I prefer to analyze coldly before acting.", d:"T", dir:1},
+      {t:"I follow my moral intuition even if it contradicts logic.", d:"T", dir:-1},
+      {t:"I seek the most rational option, not the most popular.", d:"T", dir:1},
+      {t:"I prioritize team well-being over pure efficiency.", d:"T", dir:-1},
+      {t:"I appreciate intellectual debate over easy consensus.", d:"T", dir:1},
+      {t:"I plan ahead and follow schedules.", d:"J", dir:1},
+      {t:"I prefer to keep options open and adapt.", d:"J", dir:-1},
+      {t:"It stresses me to leave tasks unfinished.", d:"J", dir:1},
+      {t:"Spontaneity and change of direction motivate me.", d:"J", dir:-1},
+      {t:"I organize my space and time in a structured way.", d:"J", dir:1},
+      {t:"I work better under last-minute pressure.", d:"J", dir:-1},
+      {t:"I set clear goals and defined deadlines.", d:"J", dir:1},
+      {t:"I prefer to explore without a fixed objective.", d:"J", dir:-1},
+      {t:"I follow task lists and established routines.", d:"J", dir:1},
+      {t:"I change plans easily if something better comes up.", d:"J", dir:-1},
+      {t:"I seek closure and definitive decisions.", d:"J", dir:1},
+      {t:"I enjoy the process more than the final result.", d:"J", dir:-1},
+      {t:"I prepare for unforeseen events in advance.", d:"J", dir:1},
+      {t:"I trust my ability to improvise.", d:"J", dir:-1},
+      {t:"I prefer a predictable and controlled environment.", d:"J", dir:1}
     ];
 
     const SCALE = [
-      {label:"Nada de acuerdo", value:1},
-      {label:"Poco de acuerdo", value:2},
+      {label:"Strongly disagree", value:1},
+      {label:"Disagree", value:2},
       {label:"Neutral", value:3},
-      {label:"Bastante de acuerdo", value:4},
-      {label:"Totalmente de acuerdo", value:5}
+      {label:"Agree", value:4},
+      {label:"Strongly agree", value:5}
     ];
 
     const PROFILES = {
-      ENTJ:"<strong>COMANDANTE</strong> • Liderazgo estratégico, enfoque en eficiencia y resultados. Alta tolerancia a la presión. <em>Puntos ciegos:</em> rigidez interpersonal, impaciencia con procesos lentos.",
-      ENTP:"<strong>INNOVADOR</strong> • Rápido en identificar fallos sistémicos y proponer alternativas. Creatividad disruptiva. <em>Puntos ciegos:</em> dispersión, dificultad con cierre operativo.",
-      ESTJ:"<strong>ADMINISTRADOR</strong> • Ejecución metódica, cumplimiento de protocolos, lealtad institucional. <em>Puntos ciegos:</em> resistencia a lo no probado, rigidez ante cambios.",
-      ESTP:"<strong>TÁCTICO</strong> • Acción inmediata, adaptación en terreno, gestión de crisis. <em>Puntos ciegos:</em> impulsividad, desprecio por planificación a largo plazo.",
-      INTJ:"<strong>ESTRATEGA</strong> • Visión a largo plazo, arquitectura de sistemas, autonomía operativa. <em>Puntos ciegos:</em> sobreanálisis, frialdad percibida, aislamiento.",
-      INTP:"<strong>ANALISTA</strong> • Desmontaje lógico de problemas, modelado abstracto, precisión técnica. <em>Puntos ciegos:</em> parálisis por opción, ejecución lenta.",
-      ISTJ:"<strong>LOGÍSTICO</strong> • Confiabilidad, mantenimiento de estándares, ejecución silenciosa. <em>Puntos ciegos:</em> aversión al cambio, burocracia interna.",
-      ISTP:"<strong>OPERADOR</strong> • Resolución práctica, manejo de herramientas, calma bajo presión. <em>Puntos ciegos:</em> aislamiento, desinterés por coordinación.",
-      ENFJ:"<strong>MENTOR</strong> • Movilización de equipos, cohesión, comunicación persuasiva. <em>Puntos ciegos:</em> sobrecompromiso emocional, evitación de conflictos necesarios.",
-      ENFP:"<strong>EXPLORADOR</strong> • Generación de ideas, adaptabilidad, conexión humana auténtica. <em>Puntos ciegos:</em> inconsistencia, dificultad con rutinas estructuradas.",
-      ESFJ:"<strong>COORDINADOR</strong> • Soporte operativo, mantenimiento de clima, gestión de recursos humanos. <em>Puntos ciegos:</em> dependencia de aprobación externa, evitación de crítica.",
-      ESFP:"<strong>EJECUTOR</strong> • Presencia en terreno, manejo de imprevistos, comunicación directa. <em>Puntos ciegos:</em> falta de planificación, dificultad con seguimiento.",
-      INFJ:"<strong>ARQUITECTO SOCIAL</strong> • Lectura de dinámicas, visión sistémica, ética operativa. <em>Puntos ciegos:</em> idealismo, agotamiento por sobrecarga empática.",
-      INFP:"<strong>MEDIADOR</strong> • Alineación con valores, creatividad estructural, resiliencia moral. <em>Puntos ciegos:</em> evitación de confrontación, pragmatismo limitado.",
-      ISFJ:"<strong>PROTECTOR</strong> • Mantenimiento de infraestructura humana, lealtad, detalle operativo. <em>Puntos ciegos:</em> resistencia a innovación, autosacrificio.",
-      ISFP:"<strong>ARTESANO</strong> • Adaptación silenciosa, ejecución precisa, sensibilidad al entorno. <em>Puntos ciegos:</em> pasividad en decisiones, dificultad con estructura."
+      ENTJ:"<strong>Executive</strong> • Strategic leadership, focus on efficiency and results. High pressure tolerance. <em>Development areas:</em> interpersonal flexibility, patience with iterative processes.",
+      ENTP:"<strong>Innovator</strong> • Rapid identification of systemic gaps and alternative proposals. Disruptive creativity. <em>Development areas:</em> follow-through, operational closure.",
+      ESTJ:"<strong>Administrator</strong> • Methodical execution, protocol compliance, institutional loyalty. <em>Development areas:</em> adaptability to unproven approaches, change management.",
+      ESTP:"<strong>Field Operator</strong> • Immediate action, situational adaptation, crisis management. <em>Development areas:</em> long-term planning, risk assessment.",
+      INTJ:"<strong>Strategic Planner</strong> • Long-term vision, systems architecture, operational autonomy. <em>Development areas:</em> collaborative communication, iterative feedback integration.",
+      INTP:"<strong>Systems Analyst</strong> • Logical problem decomposition, abstract modeling, technical precision. <em>Development areas:</em> decision velocity, execution pacing.",
+      ISTJ:"<strong>Operations Specialist</strong> • Reliability, standards maintenance, consistent execution. <em>Development areas:</em> innovation adoption, process optimization.",
+      ISTP:"<strong>Technical Operator</strong> • Practical problem resolution, tool proficiency, composure under pressure. <em>Development areas:</em> team coordination, documentation.",
+      ENFJ:"<strong>Team Developer</strong> • Team mobilization, cohesion building, persuasive communication. <em>Development areas:</em> boundary setting, constructive conflict engagement.",
+      ENFP:"<strong>Ideation Specialist</strong> • Idea generation, adaptability, authentic human connection. <em>Development areas:</em> routine management, structured execution.",
+      ESFJ:"<strong>People Operations</strong> • Operational support, climate maintenance, human resource coordination. <em>Development areas:</em> critical feedback delivery, objective prioritization.",
+      ESFP:"<strong>Field Coordinator</strong> • On-site presence, improvisation management, direct communication. <em>Development areas:</em> advance planning, follow-up systems.",
+      INFJ:"<strong>Organizational Developer</strong> • Dynamic pattern recognition, systemic vision, ethical operational framing. <em>Development areas:</em> pragmatic idealism, sustainable engagement.",
+      INFP:"<strong>Values Integration Specialist</strong> • Values alignment, structural creativity, moral resilience. <em>Development areas:</em> direct confrontation, pragmatic adaptation.",
+      ISFJ:"<strong>Support Systems Manager</strong> • Human infrastructure maintenance, loyalty, operational detail orientation. <em>Development areas:</em> innovation advocacy, self-advocacy.",
+      ISFP:"<strong>Adaptive Specialist</strong> • Situational adaptation, precise execution, environmental sensitivity. <em>Development areas:</em> decision assertiveness, structural engagement."
     };
 
     /* ===== STATE MANAGEMENT ===== */
-    const STORAGE_KEY = "mbti_ops_state_v3";
-    let state = { idx: 0, answers: new Array(QUESTIONS.length).fill(null), dims: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0}, completed: false };
+    const STORAGE_KEY = "cpas_session_v3";
+    let state = { 
+      idx: 0, 
+      answers: new Array(QUESTIONS.length).fill(null), 
+      dims: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0}, 
+      completed: false,
+      sessionId: null
+    };
 
     /* ===== INITIALIZATION ===== */
-    function init() { loadState(); updateMenuStatus(); setupKeyboardNav(); attachEventListeners(); }
+    function init() { 
+      state.sessionId = generateSessionId();
+      loadState(); 
+      updateMenuStatus(); 
+      setupKeyboardNav(); 
+      attachEventListeners(); 
+    }
+
+    function generateSessionId() {
+      return 'SES-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
+    }
 
     function loadState() {
       try {
@@ -699,52 +729,88 @@
             document.getElementById('btnResume').hidden = false;
           }
         }
-      } catch (e) { console.warn('Error loading state:', e); showToast('Error cargando sesión', 'warn'); }
+      } catch (e) { 
+        console.warn('Session load error:', e); 
+        showToast('Session restore failed', 'warn'); 
+      }
     }
 
-    function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) { console.warn('Error saving state:', e); } }
+    function saveState() { 
+      try { 
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); 
+      } catch (e) { 
+        console.warn('Session save error:', e); 
+      } 
+    }
 
     function updateMenuStatus() {
       const status = document.getElementById('menuStatus');
       const answered = state.answers.filter(a => a !== null).length;
-      if (state.completed) { status.textContent = `✓ Evaluación completada. Tipo: ${calculateType()}`; status.className = 'status success'; }
-      else if (answered > 0) { status.textContent = `Sesión guardada: ${answered}/${QUESTIONS.length} respondidas`; status.className = 'status warn'; }
-      else { status.textContent = 'Sistema listo. Esperando entrada de operador...'; status.className = 'status'; }
+      
+      if (state.completed) { 
+        status.textContent = `Assessment completed. Type: ${calculateType()}`; 
+        status.className = 'status-message success'; 
+      } else if (answered > 0) { 
+        status.textContent = `Session ${state.sessionId}: ${answered}/${QUESTIONS.length} items answered`; 
+        status.className = 'status-message warn'; 
+      } else { 
+        status.textContent = 'System ready. Awaiting operator input.'; 
+        status.className = 'status-message'; 
+      }
     }
 
     /* ===== NAVIGATION ===== */
     function showScreen(id) {
       document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
       document.getElementById(id).classList.remove('hidden');
-      if (id === 'testScreen') { setTimeout(() => { const firstOpt = document.querySelector('.opt'); if (firstOpt) firstOpt.focus(); }, 100); }
+      if (id === 'testScreen') { 
+        setTimeout(() => { 
+          const firstOpt = document.querySelector('.option-label'); 
+          if (firstOpt) firstOpt.focus(); 
+        }, 50); 
+      }
     }
 
     function startTest() {
-      state = { idx: 0, answers: new Array(QUESTIONS.length).fill(null), dims: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0}, completed: false };
+      state = { 
+        idx: 0, 
+        answers: new Array(QUESTIONS.length).fill(null), 
+        dims: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0}, 
+        completed: false,
+        sessionId: generateSessionId()
+      };
       document.getElementById('btnResume').hidden = true;
       showScreen('testScreen');
       renderQuestion();
       saveState();
-      showToast('Evaluación iniciada');
+      showToast('Assessment started');
     }
 
     function resumeTest() {
-      if (state.completed) { showScreen('resultScreen'); renderResults(); }
-      else { showScreen('testScreen'); renderQuestion(); }
-      showToast('Sesión cargada');
+      if (state.completed) { 
+        showScreen('resultScreen'); 
+        renderResults(); 
+      } else { 
+        showScreen('testScreen'); 
+        renderQuestion(); 
+      }
+      showToast('Session resumed');
     }
 
-    function resetAndRestart() { resetData(); startTest(); }
+    function resetAndRestart() { 
+      resetData(); 
+      startTest(); 
+    }
 
     function confirmReset() {
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
       modal.innerHTML = `<div class="modal" role="alertdialog" aria-labelledby="modalTitle" aria-describedby="modalDesc">
-        <h3 class="modal-title" id="modalTitle">⚠ CONFIRMACIÓN</h3>
-        <p class="modal-text" id="modalDesc">¿Purgar todos los datos de la sesión actual? Esta acción no se puede deshacer.</p>
+        <h3 class="modal-title" id="modalTitle">Confirm Data Clear</h3>
+        <p class="modal-text" id="modalDesc">This will permanently delete the current session data. This action cannot be undone.</p>
         <div class="modal-actions">
-          <button class="btn" onclick="closeModal(this)">CANCELAR</button>
-          <button class="btn warn" onclick="executeReset(this)">CONFIRMAR PURGA</button>
+          <button class="btn" onclick="closeModal(this)">Cancel</button>
+          <button class="btn btn-danger" onclick="executeReset(this)">Clear Data</button>
         </div>
       </div>`;
       document.body.appendChild(modal);
@@ -753,11 +819,27 @@
       modal.dataset.cleanup = () => document.removeEventListener('keydown', onKey);
     }
 
-    function closeModal(btn) { const modal = btn.closest('.modal-overlay'); modal?.dataset.cleanup?.(); modal?.remove(); }
-    function executeReset(btn) { resetData(); closeModal(btn); showToast('Datos purgados', 'success'); }
+    function closeModal(btn) { 
+      const modal = btn.closest('.modal-overlay'); 
+      modal?.dataset.cleanup?.(); 
+      modal?.remove(); 
+    }
+    
+    function executeReset(btn) { 
+      resetData(); 
+      closeModal(btn); 
+      showToast('Session data cleared'); 
+    }
+    
     function resetData() {
       localStorage.removeItem(STORAGE_KEY);
-      state = { idx: 0, answers: new Array(QUESTIONS.length).fill(null), dims: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0}, completed: false };
+      state = { 
+        idx: 0, 
+        answers: new Array(QUESTIONS.length).fill(null), 
+        dims: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0}, 
+        completed: false,
+        sessionId: null
+      };
       updateMenuStatus();
     }
 
@@ -768,14 +850,12 @@
       
       document.getElementById('progress').style.width = `${progress}%`;
       document.getElementById('progress').parentElement.setAttribute('aria-valuenow', Math.round(progress));
-      document.getElementById('progressText').textContent = `${state.idx + 1}/${QUESTIONS.length} preguntas`;
+      document.getElementById('progressText').textContent = `${state.idx + 1} of ${QUESTIONS.length} items completed`;
       document.getElementById('qCounter').textContent = `${String(state.idx + 1).padStart(2,'0')}/${QUESTIONS.length}`;
-      document.getElementById('qNumber').textContent = `${String(state.idx + 1).padStart(2,'0')}/${QUESTIONS.length}`;
-      document.getElementById('qDimension').textContent = `DIMENSIÓN: ${getDimensionLabel(q.d)}`;
+      document.getElementById('qNumber').textContent = `Item ${String(state.idx + 1).padStart(2,'0')} of ${QUESTIONS.length}`;
+      document.getElementById('qDimension').textContent = `Dimension: ${getDimensionLabel(q.d)}`;
       
-      // FIXED: Direct text assignment for perfect readability
-      const qText = document.getElementById('qText');
-      qText.textContent = `[${String(state.idx + 1).padStart(2, '0')}] ${q.t}`;
+      document.getElementById('qText').textContent = q.t;
       
       renderOptions(q, state.answers[state.idx]);
       document.getElementById('btnPrev').disabled = state.idx === 0;
@@ -783,24 +863,50 @@
     }
 
     function getDimensionLabel(d) {
-      const labels = {E:'EXTROVERSIÓN', I:'INTROVERSIÓN', S:'SENSORIAL', N:'INTUITIVO', T:'PENSAMIENTO', F:'SENTIMIENTO', J:'JUICIO', P:'PERCEPCIÓN'};
+      const labels = {
+        E:'Extraversion', I:'Introversion', 
+        S:'Sensing', N:'Intuition', 
+        T:'Thinking', F:'Feeling', 
+        J:'Judging', P:'Perceiving'
+      };
       return labels[d] || d;
     }
 
     function renderOptions(question, selected) {
       const container = document.getElementById('qOptions');
       container.innerHTML = '';
+      
       SCALE.forEach((opt) => {
-        const btn = document.createElement('label');
-        btn.className = `opt${selected === opt.value ? ' selected' : ''}`;
-        btn.tabIndex = 0;
-        btn.role = 'radio';
-        btn.setAttribute('aria-checked', selected === opt.value);
-        btn.innerHTML = `<span>${opt.label}</span>`;
+        const label = document.createElement('label');
+        label.className = `option-label${selected === opt.value ? ' selected' : ''}`;
+        label.tabIndex = 0;
+        label.role = 'radio';
+        label.setAttribute('aria-checked', selected === opt.value);
+        
+        const input = document.createElement('input');
+        input.type = 'radio';
+        input.name = 'response';
+        input.value = opt.value;
+        input.className = 'option-input';
+        input.checked = selected === opt.value;
+        input.setAttribute('aria-label', opt.label);
+        
+        const span = document.createElement('span');
+        span.textContent = opt.label;
+        
+        label.appendChild(input);
+        label.appendChild(span);
+        
         const select = () => handleSelect(opt.value);
-        btn.onclick = select;
-        btn.onkeydown = (e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } };
-        container.appendChild(btn);
+        label.onclick = select;
+        label.onkeydown = (e) => { 
+          if (e.key === 'Enter' || e.key === ' ') { 
+            e.preventDefault(); 
+            select(); 
+          } 
+        };
+        
+        container.appendChild(label);
       });
     }
 
@@ -809,22 +915,42 @@
       recalculateDimensions();
       renderQuestion();
       saveState();
-      if (state.idx < QUESTIONS.length - 1) { setTimeout(() => { state.idx++; renderQuestion(); }, 200); }
-      else { setTimeout(showResults, 400); }
+      
+      if (state.idx < QUESTIONS.length - 1) { 
+        setTimeout(() => { 
+          state.idx++; 
+          renderQuestion(); 
+        }, 150); 
+      } else { 
+        setTimeout(showResults, 300); 
+      }
     }
 
-    function prevQ() { if (state.idx > 0) { state.idx--; renderQuestion(); } }
-    function nextQ() { if (state.idx < QUESTIONS.length - 1 && state.answers[state.idx] !== null) { state.idx++; renderQuestion(); } }
+    function prevQ() { 
+      if (state.idx > 0) { 
+        state.idx--; 
+        renderQuestion(); 
+      } 
+    }
+    
+    function nextQ() { 
+      if (state.idx < QUESTIONS.length - 1 && state.answers[state.idx] !== null) { 
+        state.idx++; 
+        renderQuestion(); 
+      } 
+    }
 
     /* ===== SCORING ===== */
     function recalculateDimensions() {
       state.dims = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
+      
       QUESTIONS.forEach((q, i) => {
         const ans = state.answers[i];
         if (ans === null) return;
         const score = (ans - 3) * q.dir;
-        if (score > 0) { state.dims[q.d] += score; }
-        else {
+        if (score > 0) {
+          state.dims[q.d] += score;
+        } else {
           const opposite = {E:'I',I:'E',S:'N',N:'S',T:'F',F:'T',J:'P',P:'J'}[q.d];
           state.dims[opposite] += Math.abs(score);
         }
@@ -833,7 +959,10 @@
 
     function calculateType() {
       const d = state.dims;
-      return (d.E >= d.I ? 'E' : 'I') + (d.S >= d.N ? 'S' : 'N') + (d.T >= d.F ? 'T' : 'F') + (d.J >= d.P ? 'J' : 'P');
+      return (d.E >= d.I ? 'E' : 'I') +
+             (d.S >= d.N ? 'S' : 'N') +
+             (d.T >= d.F ? 'T' : 'F') +
+             (d.J >= d.P ? 'J' : 'P');
     }
 
     /* ===== RESULTS ===== */
@@ -842,61 +971,71 @@
       saveState();
       showScreen('resultScreen');
       renderResults();
-      showToast('Análisis completado', 'success');
+      showToast('Assessment complete');
     }
 
     function renderResults() {
       const type = calculateType();
       const d = state.dims;
-      const typeEl = document.getElementById('typeCode');
-      typeEl.textContent = '';
-      type.split('').forEach((char, i) => {
-        setTimeout(() => {
-          typeEl.textContent += char;
-          if (i === 3) {
-            document.getElementById('typeLabel').textContent = PROFILES[type]?.split('•')[0].replace('<strong>','').replace('</strong>','') || 'PERFIL';
-          }
-        }, i * 150);
-      });
+      
+      document.getElementById('typeCode').textContent = type;
+      document.getElementById('typeLabel').textContent = PROFILES[type]?.split('•')[0].replace('<strong>','').replace('</strong>','').trim() || 'Profile';
       
       const grid = document.getElementById('dimGrid');
       const dims = [
-        {label:'Extroversión (E)', key:'E', opp:'I'}, {label:'Introversión (I)', key:'I', opp:'E'},
-        {label:'Sensorial (S)', key:'S', opp:'N'}, {label:'Intuitivo (N)', key:'N', opp:'S'},
-        {label:'Pensamiento (T)', key:'T', opp:'F'}, {label:'Sentimiento (F)', key:'F', opp:'T'},
-        {label:'Juicio (J)', key:'J', opp:'P'}, {label:'Percepción (P)', key:'P', opp:'J'}
+        {label:'Extraversion', key:'E', opp:'I'},
+        {label:'Introversion', key:'I', opp:'E'},
+        {label:'Sensing', key:'S', opp:'N'},
+        {label:'Intuition', key:'N', opp:'S'},
+        {label:'Thinking', key:'T', opp:'F'},
+        {label:'Feeling', key:'F', opp:'T'},
+        {label:'Judging', key:'J', opp:'P'},
+        {label:'Perceiving', key:'P', opp:'J'}
       ];
       
       grid.innerHTML = dims.map(dim => {
-        const val = d[dim.key], oppVal = d[dim.opp], total = val + oppVal || 1, percent = Math.round((val / total) * 100);
-        return `<div class="dim-item" role="listitem"><span>${dim.label}</span><span class="dim-val">${val}</span></div><div class="dim-bar"><div class="dim-fill" style="width:${percent}%"></div></div>`;
+        const val = d[dim.key];
+        return `<div class="dimension-item" role="listitem">
+          <span>${dim.label}</span>
+          <span class="dimension-value">${val}</span>
+        </div>`;
       }).join('');
       
-      setTimeout(() => {
-        document.querySelectorAll('.dim-fill').forEach(bar => {
-          const w = bar.style.width; bar.style.width = '0';
-          setTimeout(() => bar.style.width = w, 50);
-        });
-      }, 100);
-      
-      document.getElementById('profileText').innerHTML = PROFILES[type] || 'Perfil no mapeado. Revisar parámetros de entrada.';
+      document.getElementById('profileText').innerHTML = PROFILES[type] || 'Profile not mapped. Review input parameters.';
     }
 
     /* ===== UTILITIES ===== */
     function copyResult() {
       const type = calculateType();
-      const text = `CORE//PROFILE ANALYSIS\nTipo: ${type}\n\n${PROFILES[type]}\n\nDimensiones:\n${Object.entries(state.dims).map(([k,v])=>`${k}:${v}`).join(' ')}`;
-      navigator.clipboard?.writeText(text).then(() => showToast('Resultado copiado al portapapeles', 'success')).catch(() => showToast('Error al copiar', 'warn'));
+      const text = `Cognitive Profile Assessment\nType: ${type}\nSession: ${state.sessionId}\n\n${PROFILES[type]?.replace(/<[^>]*>/g, '')}\n\nDimension Scores:\n${Object.entries(state.dims).map(([k,v])=>`${k}: ${v}`).join('\n')}`;
+      
+      navigator.clipboard?.writeText(text).then(() => {
+        showToast('Results copied to clipboard');
+      }).catch(() => {
+        showToast('Copy failed', 'warn');
+      });
     }
 
     function exportJSON() {
-      const data = { type: calculateType(), dimensions: state.dims, answers: state.answers, timestamp: new Date().toISOString(), version: '3.1' };
+      const data = {
+        sessionId: state.sessionId,
+        type: calculateType(),
+        dimensions: state.dims,
+        answers: state.answers,
+        completedAt: new Date().toISOString(),
+        version: '3.1.2',
+        schema: 'CPAS-2026'
+      };
+      
       const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = `core_profile_${calculateType()}_${Date.now()}.json`; a.click();
+      a.href = url;
+      a.download = `cpas_${calculateType()}_${Date.now()}.json`;
+      a.click();
       URL.revokeObjectURL(url);
-      showToast('Exportación iniciada', 'success');
+      
+      showToast('Export initiated');
     }
 
     function showToast(message, type = '') {
@@ -911,7 +1050,10 @@
     function setupKeyboardNav() {
       document.addEventListener('keydown', (e) => {
         if (document.getElementById('testScreen').classList.contains('hidden')) return;
-        const opts = document.querySelectorAll('.opt'), active = document.activeElement;
+        
+        const opts = document.querySelectorAll('.option-label');
+        const active = document.activeElement;
+        
         if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
           e.preventDefault();
           const idx = Array.from(opts).indexOf(active);
@@ -930,7 +1072,9 @@
     }
 
     function attachEventListeners() {
-      document.addEventListener('click', (e) => { if (e.target.classList.contains('modal-overlay')) closeModal(e.target); });
+      document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal-overlay')) closeModal(e.target);
+      });
     }
 
     /* ===== BOOT ===== */
