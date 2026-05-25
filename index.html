@@ -3,36 +3,31 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>SECO • Sistema de Evaluación Cognitiva Operativa</title>
+  <title>Evaluación de Perfil Cognitivo</title>
   <style>
-    /* ===== DESIGN TOKENS - CYBERPRO ===== */
+    /* ===== CORE VARIABLES ===== */
     :root {
       --bg: #0a0e17;
       --surface: #111827;
       --surface-elev: #1a2332;
       --border: #2a3441;
       --border-focus: #3b82f6;
-      
       --text: #e2e8f0;
       --text-dim: #94a3b8;
       --text-muted: #64748b;
-      
       --accent: #22d3ee;
       --accent-dim: rgba(34, 211, 238, 0.15);
       --success: #10b981;
       --warning: #f59e0b;
       --danger: #ef4444;
-      
       --glow: 0 0 20px rgba(34, 211, 238, 0.25);
       --shadow: 0 4px 24px rgba(0, 0, 0, 0.4);
-      
       --radius: 8px;
       --transition: 180ms cubic-bezier(0.4, 0, 0.2, 1);
     }
 
     /* ===== BASE ===== */
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    
     body {
       background: var(--bg);
       background-image: 
@@ -65,7 +60,6 @@
       overflow: hidden;
       position: relative;
     }
-    
     #app::before {
       content: "";
       position: absolute;
@@ -81,44 +75,18 @@
       border-bottom: 1px solid var(--border);
       background: linear-gradient(180deg, var(--surface-elev), var(--surface));
     }
-    
     .app-title {
       font-size: 1.1rem;
       font-weight: 600;
       color: var(--accent);
-      margin-bottom: 6px;
+      margin-bottom: 8px;
       letter-spacing: 0.08em;
       text-transform: uppercase;
       text-shadow: 0 0 12px rgba(34, 211, 238, 0.4);
     }
-    
     .app-subtitle {
       font-size: 0.85rem;
       color: var(--text-dim);
-      margin-bottom: 14px;
-    }
-    
-    .app-meta {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 14px 20px;
-      padding-top: 14px;
-      border-top: 1px solid var(--border);
-      font-size: 0.75rem;
-      color: var(--text-muted);
-    }
-    
-    .app-meta-item {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .app-meta-item::before {
-      content: "●";
-      color: var(--accent);
-      font-size: 0.6rem;
-      text-shadow: 0 0 6px var(--accent);
     }
 
     /* ===== CONTENT ===== */
@@ -126,7 +94,6 @@
 
     /* ===== PROGRESS ===== */
     .progress-section { margin-bottom: 22px; }
-    
     .progress-header {
       display: flex;
       justify-content: space-between;
@@ -135,7 +102,6 @@
       color: var(--text-dim);
       letter-spacing: 0.03em;
     }
-    
     .progress-track {
       height: 6px;
       background: var(--surface-elev);
@@ -144,7 +110,6 @@
       overflow: hidden;
       position: relative;
     }
-    
     .progress-fill {
       height: 100%;
       background: linear-gradient(90deg, var(--accent), var(--success));
@@ -152,7 +117,6 @@
       transition: width var(--transition);
       box-shadow: 0 0 12px rgba(34, 211, 238, 0.5);
     }
-    
     .progress-fill::after {
       content: "";
       position: absolute;
@@ -172,7 +136,6 @@
       padding: 18px 20px;
       margin-bottom: 20px;
     }
-    
     .question-meta {
       display: flex;
       justify-content: space-between;
@@ -182,7 +145,6 @@
       text-transform: uppercase;
       letter-spacing: 0.06em;
     }
-    
     .question-text {
       font-size: 1rem;
       color: var(--text);
@@ -197,7 +159,6 @@
 
     /* ===== OPTIONS ===== */
     .options-group { display: flex; flex-direction: column; gap: 9px; margin-top: 4px; }
-    
     .option-label {
       display: flex;
       align-items: center;
@@ -210,19 +171,16 @@
       font-size: 0.9rem;
       position: relative;
     }
-    
     .option-label:hover {
       border-color: var(--accent);
       background: var(--accent-dim);
       transform: translateX(3px);
     }
-    
     .option-label.selected {
       border-color: var(--success);
       background: rgba(16, 185, 129, 0.12);
       box-shadow: inset 0 0 0 1px var(--success);
     }
-    
     .option-label.selected::before {
       content: "✓";
       position: absolute;
@@ -231,7 +189,6 @@
       font-weight: 600;
       text-shadow: 0 0 8px var(--success);
     }
-    
     .option-input {
       margin-right: 11px;
       accent-color: var(--accent);
@@ -247,9 +204,7 @@
       padding-top: 18px;
       border-top: 1px solid var(--border);
     }
-    
     .nav-group { display: flex; gap: 9px; }
-    
     .btn {
       display: inline-flex;
       align-items: center;
@@ -267,41 +222,27 @@
       letter-spacing: 0.03em;
       text-transform: uppercase;
     }
-    
     .btn:hover:not(:disabled) {
       background: var(--accent-dim);
       border-color: var(--accent);
       box-shadow: 0 0 14px rgba(34, 211, 238, 0.3);
       transform: translateY(-1px);
     }
-    
-    .btn:disabled {
-      opacity: 0.45;
-      cursor: not-allowed;
-      transform: none;
-    }
-    
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; transform: none; }
     .btn-primary {
       background: var(--accent-dim);
       border-color: var(--accent);
       color: var(--accent);
     }
-    
     .btn-primary:hover:not(:disabled) {
       background: rgba(34, 211, 238, 0.25);
       box-shadow: 0 0 18px rgba(34, 211, 238, 0.5);
     }
-    
-    .btn-danger {
-      border-color: var(--danger);
-      color: var(--danger);
-    }
-    
+    .btn-danger { border-color: var(--danger); color: var(--danger); }
     .btn-danger:hover:not(:disabled) {
       background: rgba(239, 68, 68, 0.15);
       box-shadow: 0 0 14px rgba(239, 68, 68, 0.4);
     }
-    
     .counter {
       font-size: 0.8rem;
       color: var(--text-muted);
@@ -311,7 +252,6 @@
 
     /* ===== MENU ===== */
     .menu-actions { display: flex; flex-direction: column; gap: 11px; margin: 22px 0; }
-    
     .status-message {
       padding: 11px 15px;
       background: var(--surface-elev);
@@ -322,7 +262,6 @@
       color: var(--text-dim);
       font-style: italic;
     }
-    
     .status-message.success { border-left-color: var(--success); color: var(--success); }
     .status-message.warn { border-left-color: var(--warning); color: var(--warning); }
 
@@ -333,7 +272,6 @@
       border-bottom: 1px solid var(--border);
       margin-bottom: 22px;
     }
-    
     .result-type {
       font-size: 2.8rem;
       font-weight: 700;
@@ -343,26 +281,19 @@
       text-shadow: 0 0 20px rgba(16, 185, 129, 0.6);
       animation: typeReveal 0.6s ease-out;
     }
-    
-    @keyframes typeReveal {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
-    
+    @keyframes typeReveal { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
     .result-label {
       font-size: 0.9rem;
       color: var(--text-dim);
       letter-spacing: 0.08em;
       text-transform: uppercase;
     }
-    
     .dimensions-grid {
       display: grid;
       grid-template-columns: repeat(2, 1fr);
       gap: 10px;
       margin: 22px 0;
     }
-    
     .dimension-item {
       display: flex;
       justify-content: space-between;
@@ -374,9 +305,7 @@
       font-size: 0.85rem;
       transition: border-color var(--transition);
     }
-    
     .dimension-item:hover { border-color: var(--accent); }
-    
     .dimension-value {
       font-weight: 600;
       color: var(--accent);
@@ -384,7 +313,6 @@
       min-width: 28px;
       text-align: right;
     }
-    
     .result-card {
       background: var(--surface-elev);
       border: 1px solid var(--border);
@@ -392,7 +320,6 @@
       padding: 18px;
       margin: 22px 0;
     }
-    
     .result-card-title {
       font-size: 0.8rem;
       font-weight: 600;
@@ -403,16 +330,13 @@
       padding-bottom: 9px;
       border-bottom: 1px solid var(--border);
     }
-    
     .profile-description {
       font-size: 0.9rem;
       color: var(--text-dim);
       line-height: 1.65;
     }
-    
     .profile-description strong { color: var(--text); font-weight: 600; }
     .profile-description em { color: var(--warning); font-style: normal; }
-    
     .result-actions {
       display: flex;
       flex-wrap: wrap;
@@ -434,7 +358,6 @@
       padding: 20px;
       backdrop-filter: blur(4px);
     }
-    
     .modal {
       background: var(--surface);
       border: 1px solid var(--danger);
@@ -444,7 +367,6 @@
       width: 100%;
       box-shadow: var(--shadow), 0 0 30px rgba(239, 68, 68, 0.3);
     }
-    
     .modal-title {
       font-size: 1.05rem;
       font-weight: 600;
@@ -452,14 +374,12 @@
       margin-bottom: 11px;
       letter-spacing: 0.05em;
     }
-    
     .modal-text {
       color: var(--text-dim);
       margin-bottom: 18px;
       font-size: 0.9rem;
       line-height: 1.6;
     }
-    
     .modal-actions { display: flex; gap: 9px; justify-content: flex-end; }
 
     /* ===== TOAST ===== */
@@ -482,10 +402,8 @@
       animation: toastIn 200ms ease, toastOut 200ms ease 2800ms forwards;
       max-width: 320px;
     }
-    
     .toast.success { border-left-color: var(--success); }
     .toast.warn { border-left-color: var(--warning); border-color: var(--warning); }
-    
     @keyframes toastIn { from { transform: translateX(120%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     @keyframes toastOut { to { opacity: 0; transform: translateX(24px); } }
 
@@ -495,8 +413,6 @@
       position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px;
       overflow: hidden; clip: rect(0,0,0,0); white-space: nowrap; border: 0;
     }
-
-    /* ===== RESPONSIVE ===== */
     @media (max-width: 640px) {
       #app { border-radius: 6px; }
       .app-header, .app-content { padding: 18px 16px; }
@@ -506,8 +422,6 @@
       .nav-group { justify-content: center; }
       .question-text { font-size: 0.95rem; min-height: 4em; }
     }
-
-    /* ===== ACCESSIBILITY ===== */
     @media (prefers-reduced-motion: reduce) {
       *, *::before, *::after {
         animation-duration: 0.01ms !important;
@@ -517,35 +431,23 @@
   </style>
 </head>
 <body>
-  <div id="app" role="application" aria-label="Sistema de Evaluación Cognitiva Operativa">
+  <div id="app" role="application" aria-label="Evaluación de Perfil Cognitivo">
     
     <!-- HEADER -->
     <header class="app-header">
-      <h1 class="app-title">SECO • Módulo de Evaluación</h1>
-      <p class="app-subtitle">Sistema de Evaluación Cognitiva Operativa • v3.1.2</p>
-      <div class="app-meta">
-        <span class="app-meta-item">Clasificación: Uso Interno</span>
-        <span class="app-meta-item">Normativa: ISO/IEC 27001:2022</span>
-        <span class="app-meta-item">Retención: 90 días</span>
-        <span class="app-meta-item">Cifrado: AES-256</span>
-      </div>
+      <h1 class="app-title">Evaluación de Perfil</h1>
+      <p class="app-subtitle">Análisis cognitivo operativo</p>
     </header>
 
     <!-- MENU -->
     <section id="menu" class="app-content screen" aria-live="polite">
       <div class="menu-actions">
-        <button class="btn btn-primary" onclick="startTest()" aria-label="Iniciar nueva evaluación">
-          Iniciar Evaluación
-        </button>
-        <button class="btn" id="btnResume" onclick="resumeTest()" aria-label="Continuar sesión guardada" hidden>
-          Continuar Sesión
-        </button>
-        <button class="btn btn-danger" onclick="confirmReset()" aria-label="Eliminar datos de sesión">
-          Purgar Datos
-        </button>
+        <button class="btn btn-primary" onclick="startTest()">Iniciar</button>
+        <button class="btn" id="btnResume" onclick="resumeTest()" hidden>Continuar</button>
+        <button class="btn btn-danger" onclick="confirmReset()">Purgar</button>
       </div>
       <div class="status-message" id="menuStatus" role="status">
-        Sistema inicializado. Esperando entrada de operador...
+        Sistema listo.
       </div>
     </section>
 
@@ -553,8 +455,8 @@
     <section id="testScreen" class="app-content screen hidden" aria-live="polite">
       <div class="progress-section">
         <div class="progress-header">
-          <span>Progreso de Evaluación</span>
-          <span id="progressText">0 de 60 ítems completados</span>
+          <span>Progreso</span>
+          <span id="progressText">0/60</span>
         </div>
         <div class="progress-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
           <div class="progress-fill" id="progress" aria-hidden="true"></div>
@@ -563,53 +465,45 @@
       
       <div class="question-card">
         <div class="question-meta">
-          <span id="qDimension">Dimensión: —</span>
-          <span id="qNumber">Ítem 01/60</span>
+          <span id="qDimension">—</span>
+          <span id="qNumber">01/60</span>
         </div>
         <p class="question-text" id="qText" aria-live="assertive"></p>
-        <fieldset class="options-group" id="qOptions" role="radiogroup" aria-label="Opciones de respuesta"></fieldset>
+        <fieldset class="options-group" id="qOptions" role="radiogroup" aria-label="Opciones"></fieldset>
       </div>
       
       <div class="nav-controls">
         <div class="nav-group">
-          <button class="btn" onclick="prevQ()" id="btnPrev" aria-label="Ítem anterior" disabled>Anterior</button>
-          <button class="btn" onclick="nextQ()" id="btnNext" aria-label="Siguiente ítem" disabled>Siguiente</button>
+          <button class="btn" onclick="prevQ()" id="btnPrev" disabled>Anterior</button>
+          <button class="btn" onclick="nextQ()" id="btnNext" disabled>Siguiente</button>
         </div>
-        <span class="counter" id="qCounter" aria-live="polite">00/60</span>
+        <span class="counter" id="qCounter">00/60</span>
       </div>
     </section>
 
     <!-- RESULTS -->
     <section id="resultScreen" class="app-content screen hidden" aria-live="polite">
       <div class="result-header">
-        <div class="result-type" id="typeCode" aria-label="Tipo cognitivo">----</div>
-        <div class="result-label" id="typeLabel">Procesando perfil...</div>
+        <div class="result-type" id="typeCode">----</div>
+        <div class="result-label" id="typeLabel">Procesando...</div>
       </div>
-      
-      <div class="dimensions-grid" id="dimGrid" role="list" aria-label="Dimensiones cognitivas"></div>
-      
+      <div class="dimensions-grid" id="dimGrid" role="list"></div>
       <div class="result-card">
-        <div class="result-card-title">Resumen Operativo</div>
+        <div class="result-card-title">Perfil</div>
         <div class="profile-description" id="profileText"></div>
       </div>
-      
       <div class="result-actions">
-        <button class="btn" onclick="copyResult()" aria-label="Copiar resultados">Copiar Resultados</button>
-        <button class="btn" onclick="exportJSON()" aria-label="Exportar datos">Exportar JSON</button>
-        <button class="btn btn-danger" onclick="resetAndRestart()" aria-label="Nueva evaluación">Nueva Evaluación</button>
+        <button class="btn" onclick="copyResult()">Copiar</button>
+        <button class="btn" onclick="exportJSON()">Exportar</button>
+        <button class="btn btn-danger" onclick="resetAndRestart()">Reiniciar</button>
       </div>
     </section>
 
-    <!-- FOOTER -->
-    <footer style="padding:14px 24px;border-top:1px solid var(--border);font-size:0.75rem;color:var(--text-muted);text-align:center;">
-      SECO v3.1.2 • Módulo de Evaluación Cognitiva • Uso exclusivo interno
-    </footer>
   </div>
 
   <div id="toastContainer" aria-live="assertive" aria-atomic="true"></div>
 
   <script>
-    /* ===== DATA ===== */
     const QUESTIONS = [
       {t:"Prefiero interactuar con varias personas antes que estar solo.", d:"E", dir:1},
       {t:"Me agoto rápido en reuniones largas y necesito tiempo a solas.", d:"E", dir:-1},
@@ -682,47 +576,29 @@
     ];
 
     const PROFILES = {
-      ENTJ:"<strong>Estratega Ejecutivo</strong> • Liderazgo orientado a resultados, eficiencia operativa y toma de decisiones bajo presión. <em>Áreas de desarrollo:</em> flexibilidad interpersonal, gestión de procesos iterativos.",
-      ENTP:"<strong>Innovador Sistémico</strong> • Detección rápida de patrones disruptivos y generación de alternativas no convencionales. <em>Áreas de desarrollo:</em> cierre operativo, consistencia en ejecución.",
-      ESTJ:"<strong>Coordinador Operativo</strong> • Ejecución metódica, adherencia a protocolos, fiabilidad institucional. <em>Áreas de desarrollo:</em> adaptación a enfoques no validados, gestión del cambio.",
-      ESTP:"<strong>Operador de Campo</strong> • Respuesta inmediata, adaptación táctica, gestión de incidentes en tiempo real. <em>Áreas de desarrollo:</em> planificación estratégica, evaluación de riesgos a largo plazo.",
-      INTJ:"<strong>Arquitecto Estratégico</strong> • Visión de largo plazo, diseño de sistemas complejos, autonomía en ejecución. <em>Áreas de desarrollo:</em> comunicación colaborativa, integración de feedback iterativo.",
-      INTP:"<strong>Analista de Sistemas</strong> • Descomposición lógica de problemas, modelado abstracto, precisión técnica. <em>Áreas de desarrollo:</em> velocidad de decisión, ritmo de implementación.",
-      ISTJ:"<strong>Especialista en Operaciones</strong> • Fiabilidad, mantenimiento de estándares, ejecución consistente. <em>Áreas de desarrollo:</em> adopción de innovación, optimización de procesos.",
-      ISTP:"<strong>Técnico de Respuesta</strong> • Resolución práctica, dominio de herramientas, calma bajo presión operativa. <em>Áreas de desarrollo:</em> coordinación en equipo, documentación sistemática.",
-      ENFJ:"<strong>Desarrollador de Equipos</strong> • Movilización de grupos, construcción de cohesión, comunicación persuasiva. <em>Áreas de desarrollo:</em> establecimiento de límites, gestión constructiva de conflicto.",
-      ENFP:"<strong>Especialista en Ideación</strong> • Generación de conceptos, adaptabilidad cognitiva, conexión humana auténtica. <em>Áreas de desarrollo:</em> gestión de rutinas, ejecución estructurada.",
-      ESFJ:"<strong>Coordinador de Personas</strong> • Soporte operativo, mantenimiento de clima organizacional, gestión de recursos humanos. <em>Áreas de desarrollo:</em> entrega de feedback crítico, priorización objetiva.",
-      ESFP:"<strong>Enlace de Campo</strong> • Presencia en terreno, gestión de imprevistos, comunicación directa y efectiva. <em>Áreas de desarrollo:</em> planificación anticipada, sistemas de seguimiento.",
-      INFJ:"<strong>Desarrollador Organizacional</strong> • Reconocimiento de dinámicas sistémicas, visión ética operativa, integración de valores. <em>Áreas de desarrollo:</em> pragmatismo sostenible, gestión de carga empática.",
-      INFP:"<strong>Especialista en Integración de Valores</strong> • Alineación con principios, creatividad estructural, resiliencia moral. <em>Áreas de desarrollo:</em> confrontación directa, adaptación pragmática.",
-      ISFJ:"<strong>Gestor de Soporte</strong> • Mantenimiento de infraestructura humana, lealtad operativa, orientación al detalle. <em>Áreas de desarrollo:</em> promoción de innovación, auto-advocacy.",
-      ISFP:"<strong>Especialista Adaptativo</strong> • Adaptación situacional, ejecución precisa, sensibilidad al entorno operativo. <em>Áreas de desarrollo:</em> asertividad en decisiones, engagement estructural."
+      ENTJ:"<strong>Estratega</strong> • Liderazgo orientado a resultados, eficiencia operativa. <em>Desarrollo:</em> flexibilidad interpersonal.",
+      ENTP:"<strong>Innovador</strong> • Detección de patrones, generación de alternativas. <em>Desarrollo:</em> cierre operativo.",
+      ESTJ:"<strong>Coordinador</strong> • Ejecución metódica, adherencia a protocolos. <em>Desarrollo:</em> adaptación al cambio.",
+      ESTP:"<strong>Operador</strong> • Respuesta inmediata, adaptación táctica. <em>Desarrollo:</em> planificación a largo plazo.",
+      INTJ:"<strong>Arquitecto</strong> • Visión de largo plazo, diseño de sistemas. <em>Desarrollo:</em> comunicación colaborativa.",
+      INTP:"<strong>Analista</strong> • Descomposición lógica, modelado abstracto. <em>Desarrollo:</em> velocidad de decisión.",
+      ISTJ:"<strong>Especialista</strong> • Fiabilidad, mantenimiento de estándares. <em>Desarrollo:</em> adopción de innovación.",
+      ISTP:"<strong>Técnico</strong> • Resolución práctica, calma bajo presión. <em>Desarrollo:</em> coordinación en equipo.",
+      ENFJ:"<strong>Desarrollador</strong> • Movilización de grupos, comunicación persuasiva. <em>Desarrollo:</em> gestión de conflicto.",
+      ENFP:"<strong>Ideador</strong> • Generación de conceptos, adaptabilidad. <em>Desarrollo:</em> ejecución estructurada.",
+      ESFJ:"<strong>Coordinador</strong> • Soporte operativo, gestión de personas. <em>Desarrollo:</em> feedback crítico.",
+      ESFP:"<strong>Enlace</strong> • Presencia en terreno, comunicación directa. <em>Desarrollo:</em> planificación anticipada.",
+      INFJ:"<strong>Desarrollador</strong> • Visión sistémica, integración de valores. <em>Desarrollo:</em> pragmatismo sostenible.",
+      INFP:"<strong>Integrador</strong> • Alineación con principios, resiliencia moral. <em>Desarrollo:</em> confrontación directa.",
+      ISFJ:"<strong>Soporte</strong> • Infraestructura humana, orientación al detalle. <em>Desarrollo:</em> promoción de innovación.",
+      ISFP:"<strong>Adaptativo</strong> • Adaptación situacional, ejecución precisa. <em>Desarrollo:</em> asertividad en decisiones."
     };
 
-    /* ===== STATE ===== */
-    const STORAGE_KEY = "seco_session_v3";
-    let state = { 
-      idx: 0, 
-      answers: new Array(QUESTIONS.length).fill(null), 
-      dims: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0}, 
-      completed: false,
-      sessionId: null
-    };
+    const STORAGE_KEY = "profile_eval_v3";
+    let state = { idx: 0, answers: new Array(QUESTIONS.length).fill(null), dims: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0}, completed: false };
 
-    /* ===== INIT ===== */
-    function init() { 
-      state.sessionId = generateSessionId();
-      loadState(); 
-      updateMenuStatus(); 
-      setupKeyboardNav(); 
-      attachEventListeners(); 
-    }
-
-    function generateSessionId() {
-      return 'SECO-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).substr(2, 6).toUpperCase();
-    }
-
+    function init() { loadState(); updateMenuStatus(); setupKeyboardNav(); }
+    
     function loadState() {
       try {
         const saved = localStorage.getItem(STORAGE_KEY);
@@ -733,53 +609,26 @@
             document.getElementById('btnResume').hidden = false;
           }
         }
-      } catch (e) { 
-        console.warn('Error cargando sesión:', e); 
-        showToast('Error al restaurar sesión', 'warn'); 
-      }
+      } catch (e) { showToast('Error al cargar', 'warn'); }
     }
-
-    function saveState() { 
-      try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } 
-      catch (e) { console.warn('Error guardando sesión:', e); } 
-    }
-
+    
+    function saveState() { try { localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); } catch (e) {} }
+    
     function updateMenuStatus() {
       const status = document.getElementById('menuStatus');
       const answered = state.answers.filter(a => a !== null).length;
-      
-      if (state.completed) { 
-        status.textContent = `Evaluación completada. Tipo: ${calculateType()}`; 
-        status.className = 'status-message success'; 
-      } else if (answered > 0) { 
-        status.textContent = `Sesión ${state.sessionId}: ${answered}/${QUESTIONS.length} ítems respondidos`; 
-        status.className = 'status-message warn'; 
-      } else { 
-        status.textContent = 'Sistema listo. Esperando entrada de operador...'; 
-        status.className = 'status-message'; 
-      }
+      if (state.completed) { status.textContent = `Completado: ${calculateType()}`; status.className = 'status-message success'; }
+      else if (answered > 0) { status.textContent = `${answered}/${QUESTIONS.length} respondidos`; status.className = 'status-message warn'; }
+      else { status.textContent = 'Sistema listo.'; status.className = 'status-message'; }
     }
 
-    /* ===== NAV ===== */
     function showScreen(id) {
       document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
       document.getElementById(id).classList.remove('hidden');
-      if (id === 'testScreen') { 
-        setTimeout(() => { 
-          const firstOpt = document.querySelector('.option-label'); 
-          if (firstOpt) firstOpt.focus(); 
-        }, 50); 
-      }
     }
 
     function startTest() {
-      state = { 
-        idx: 0, 
-        answers: new Array(QUESTIONS.length).fill(null), 
-        dims: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0}, 
-        completed: false,
-        sessionId: generateSessionId()
-      };
+      state = { idx: 0, answers: new Array(QUESTIONS.length).fill(null), dims: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0}, completed: false };
       document.getElementById('btnResume').hidden = true;
       showScreen('testScreen');
       renderQuestion();
@@ -798,108 +647,59 @@
     function confirmReset() {
       const modal = document.createElement('div');
       modal.className = 'modal-overlay';
-      modal.innerHTML = `<div class="modal" role="alertdialog" aria-labelledby="modalTitle" aria-describedby="modalDesc">
-        <h3 class="modal-title" id="modalTitle">Confirmar purga de datos</h3>
-        <p class="modal-text" id="modalDesc">Esta acción eliminará permanentemente los datos de la sesión actual. No se puede deshacer.</p>
+      modal.innerHTML = `<div class="modal">
+        <h3 class="modal-title">Confirmar</h3>
+        <p class="modal-text">¿Eliminar datos de sesión?</p>
         <div class="modal-actions">
           <button class="btn" onclick="closeModal(this)">Cancelar</button>
-          <button class="btn btn-danger" onclick="executeReset(this)">Purgar Datos</button>
+          <button class="btn btn-danger" onclick="executeReset(this)">Purgar</button>
         </div>
       </div>`;
       document.body.appendChild(modal);
-      const onKey = (e) => { if (e.key === 'Escape') closeModal(modal); };
-      document.addEventListener('keydown', onKey);
-      modal.dataset.cleanup = () => document.removeEventListener('keydown', onKey);
     }
 
-    function closeModal(btn) { 
-      const modal = btn.closest('.modal-overlay'); 
-      modal?.dataset.cleanup?.(); 
-      modal?.remove(); 
-    }
-    
-    function executeReset(btn) { 
-      resetData(); 
-      closeModal(btn); 
-      showToast('Datos de sesión purgados'); 
-    }
-    
+    function closeModal(btn) { btn.closest('.modal-overlay')?.remove(); }
+    function executeReset(btn) { resetData(); closeModal(btn); showToast('Datos purgados'); }
     function resetData() {
       localStorage.removeItem(STORAGE_KEY);
-      state = { 
-        idx: 0, 
-        answers: new Array(QUESTIONS.length).fill(null), 
-        dims: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0}, 
-        completed: false,
-        sessionId: null
-      };
+      state = { idx: 0, answers: new Array(QUESTIONS.length).fill(null), dims: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0}, completed: false };
       updateMenuStatus();
     }
 
-    /* ===== RENDER ===== */
     function renderQuestion() {
       const q = QUESTIONS[state.idx];
       const progress = ((state.idx) / QUESTIONS.length) * 100;
-      
       document.getElementById('progress').style.width = `${progress}%`;
-      document.getElementById('progress').parentElement.setAttribute('aria-valuenow', Math.round(progress));
-      document.getElementById('progressText').textContent = `${state.idx + 1} de ${QUESTIONS.length} ítems completados`;
-      document.getElementById('qCounter').textContent = `${String(state.idx + 1).padStart(2,'0')}/${QUESTIONS.length}`;
-      document.getElementById('qNumber').textContent = `Ítem ${String(state.idx + 1).padStart(2,'0')}/${QUESTIONS.length}`;
-      document.getElementById('qDimension').textContent = `Dimensión: ${getDimensionLabel(q.d)}`;
-      
-      // FIXED: Direct assignment for perfect readability
+      document.getElementById('progressText').textContent = `${state.idx + 1}/60`;
+      document.getElementById('qCounter').textContent = `${String(state.idx + 1).padStart(2,'0')}/60`;
+      document.getElementById('qNumber').textContent = `${String(state.idx + 1).padStart(2,'0')}/60`;
+      document.getElementById('qDimension').textContent = getDimensionLabel(q.d);
       document.getElementById('qText').textContent = q.t;
-      
-      renderOptions(q, state.answers[state.idx]);
+      renderOptions(state.answers[state.idx]);
       document.getElementById('btnPrev').disabled = state.idx === 0;
       document.getElementById('btnNext').disabled = state.answers[state.idx] === null;
     }
 
     function getDimensionLabel(d) {
-      const labels = {
-        E:'Extraversión', I:'Introversión', 
-        S:'Sensitivo', N:'Intuitivo', 
-        T:'Pensamiento', F:'Sentimiento', 
-        J:'Juicio', P:'Percepción'
-      };
-      return labels[d] || d;
+      const l = {E:'Extraversión', I:'Introversión', S:'Sensitivo', N:'Intuitivo', T:'Pensamiento', F:'Sentimiento', J:'Juicio', P:'Percepción'};
+      return l[d] || d;
     }
 
-    function renderOptions(question, selected) {
+    function renderOptions(selected) {
       const container = document.getElementById('qOptions');
       container.innerHTML = '';
-      
-      SCALE.forEach((opt) => {
+      SCALE.forEach(opt => {
         const label = document.createElement('label');
         label.className = `option-label${selected === opt.value ? ' selected' : ''}`;
-        label.tabIndex = 0;
-        label.role = 'radio';
-        label.setAttribute('aria-checked', selected === opt.value);
-        
+        label.tabIndex = 0; label.role = 'radio'; label.setAttribute('aria-checked', selected === opt.value);
         const input = document.createElement('input');
-        input.type = 'radio';
-        input.name = 'response';
-        input.value = opt.value;
-        input.className = 'option-input';
-        input.checked = selected === opt.value;
-        input.setAttribute('aria-label', opt.label);
-        
-        const span = document.createElement('span');
-        span.textContent = opt.label;
-        
-        label.appendChild(input);
-        label.appendChild(span);
-        
+        input.type = 'radio'; input.name = 'response'; input.value = opt.value;
+        input.className = 'option-input'; input.checked = selected === opt.value;
+        const span = document.createElement('span'); span.textContent = opt.label;
+        label.appendChild(input); label.appendChild(span);
         const select = () => handleSelect(opt.value);
         label.onclick = select;
-        label.onkeydown = (e) => { 
-          if (e.key === 'Enter' || e.key === ' ') { 
-            e.preventDefault(); 
-            select(); 
-          } 
-        };
-        
+        label.onkeydown = e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); select(); } };
         container.appendChild(label);
       });
     }
@@ -909,18 +709,13 @@
       recalculateDimensions();
       renderQuestion();
       saveState();
-      
-      if (state.idx < QUESTIONS.length - 1) { 
-        setTimeout(() => { state.idx++; renderQuestion(); }, 150); 
-      } else { 
-        setTimeout(showResults, 300); 
-      }
+      if (state.idx < QUESTIONS.length - 1) { setTimeout(() => { state.idx++; renderQuestion(); }, 150); }
+      else { setTimeout(showResults, 300); }
     }
 
     function prevQ() { if (state.idx > 0) { state.idx--; renderQuestion(); } }
     function nextQ() { if (state.idx < QUESTIONS.length - 1 && state.answers[state.idx] !== null) { state.idx++; renderQuestion(); } }
 
-    /* ===== SCORING ===== */
     function recalculateDimensions() {
       state.dims = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
       QUESTIONS.forEach((q, i) => {
@@ -940,20 +735,18 @@
       return (d.E >= d.I ? 'E' : 'I') + (d.S >= d.N ? 'S' : 'N') + (d.T >= d.F ? 'T' : 'F') + (d.J >= d.P ? 'J' : 'P');
     }
 
-    /* ===== RESULTS ===== */
     function showResults() {
       state.completed = true;
       saveState();
       showScreen('resultScreen');
       renderResults();
-      showToast('Evaluación completada');
+      showToast('Completado');
     }
 
     function renderResults() {
       const type = calculateType();
       document.getElementById('typeCode').textContent = type;
       document.getElementById('typeLabel').textContent = PROFILES[type]?.split('•')[0].replace('<strong>','').replace('</strong>','').trim() || 'Perfil';
-      
       const grid = document.getElementById('dimGrid');
       const dims = [
         {label:'Extraversión', key:'E'}, {label:'Introversión', key:'I'},
@@ -961,50 +754,38 @@
         {label:'Pensamiento', key:'T'}, {label:'Sentimiento', key:'F'},
         {label:'Juicio', key:'J'}, {label:'Percepción', key:'P'}
       ];
-      
       grid.innerHTML = dims.map(dim => 
-        `<div class="dimension-item" role="listitem"><span>${dim.label}</span><span class="dimension-value">${state.dims[dim.key]}</span></div>`
+        `<div class="dimension-item"><span>${dim.label}</span><span class="dimension-value">${state.dims[dim.key]}</span></div>`
       ).join('');
-      
-      document.getElementById('profileText').innerHTML = PROFILES[type] || 'Perfil no mapeado. Revisar parámetros de entrada.';
+      document.getElementById('profileText').innerHTML = PROFILES[type] || 'Perfil no disponible.';
     }
 
-    /* ===== UTILS ===== */
     function copyResult() {
       const type = calculateType();
-      const text = `SECO • Evaluación Cognitiva\nTipo: ${type}\nSesión: ${state.sessionId}\n\n${PROFILES[type]?.replace(/<[^>]*>/g, '')}\n\nPuntuaciones:\n${Object.entries(state.dims).map(([k,v])=>`${k}: ${v}`).join('\n')}`;
-      navigator.clipboard?.writeText(text).then(() => showToast('Resultados copiados')).catch(() => showToast('Error al copiar', 'warn'));
+      const text = `Perfil: ${type}\n\n${PROFILES[type]?.replace(/<[^>]*>/g, '')}\n\n${Object.entries(state.dims).map(([k,v])=>`${k}: ${v}`).join('\n')}`;
+      navigator.clipboard?.writeText(text).then(() => showToast('Copiado')).catch(() => showToast('Error', 'warn'));
     }
 
     function exportJSON() {
-      const data = {
-        sessionId: state.sessionId,
-        type: calculateType(),
-        dimensions: state.dims,
-        answers: state.answers,
-        completedAt: new Date().toISOString(),
-        version: '3.1.2',
-        schema: 'SECO-2026'
-      };
+      const data = { type: calculateType(), dimensions: state.dims, answers: state.answers, at: new Date().toISOString() };
       const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
-      a.href = url; a.download = `seco_${calculateType()}_${Date.now()}.json`; a.click();
+      a.href = url; a.download = `perfil_${calculateType()}.json`; a.click();
       URL.revokeObjectURL(url);
-      showToast('Exportación iniciada');
+      showToast('Exportado');
     }
 
-    function showToast(message, type = '') {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      toast.textContent = message;
-      container.appendChild(toast);
-      setTimeout(() => toast.remove(), 3000);
+    function showToast(msg, type = '') {
+      const c = document.getElementById('toastContainer');
+      const t = document.createElement('div');
+      t.className = `toast ${type}`; t.textContent = msg;
+      c.appendChild(t);
+      setTimeout(() => t.remove(), 3000);
     }
 
     function setupKeyboardNav() {
-      document.addEventListener('keydown', (e) => {
+      document.addEventListener('keydown', e => {
         if (document.getElementById('testScreen').classList.contains('hidden')) return;
         const opts = document.querySelectorAll('.option-label'), active = document.activeElement;
         if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
@@ -1022,10 +803,6 @@
           if (SCALE.some(o => o.value === val)) handleSelect(val);
         }
       });
-    }
-
-    function attachEventListeners() {
-      document.addEventListener('click', (e) => { if (e.target.classList.contains('modal-overlay')) closeModal(e.target); });
     }
 
     document.addEventListener('DOMContentLoaded', init);
