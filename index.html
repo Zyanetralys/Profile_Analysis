@@ -3,123 +3,819 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>CORE//PROFILE ANALYSIS v2.1</title>
+  <meta name="description" content="CORE//PROFILE ANALYSIS - Sistema de Evaluación Cognitiva MBTI-OPS">
+  <title>CORE//PROFILE ANALYSIS v3.0</title>
   <style>
+    /* ===== CORE VARIABLES ===== */
     :root {
-      --bg: #030508; --panel: #0a0d14; --frame: #111827;
-      --cyan: #00f3ff; --magenta: #ff2a6d; --green: #05ffa1;
-      --dim: #2a3441; --text: #c8d6e5; --warn: #ff3366;
-      --glow-cyan: 0 0 8px var(--cyan), 0 0 16px rgba(0,243,255,0.3);
-      --glow-green: 0 0 6px var(--green);
+      --bg: #030508;
+      --panel: #0a0d14;
+      --frame: #111827;
+      --cyan: #00f3ff;
+      --magenta: #ff2a6d;
+      --green: #05ffa1;
+      --amber: #ffb86c;
+      --dim: #2a3441;
+      --text: #c8d6e5;
+      --text-dim: #6b7a8f;
+      --warn: #ff3366;
+      --success: #00d9a5;
+      
+      --glow-cyan: 0 0 8px var(--cyan), 0 0 16px rgba(0,243,255,0.3), 0 0 32px rgba(0,243,255,0.1);
+      --glow-green: 0 0 6px var(--green), 0 0 12px rgba(5,255,161,0.2);
+      --glow-warn: 0 0 8px var(--warn), 0 0 16px rgba(255,51,102,0.2);
+      
+      --transition-fast: 150ms ease;
+      --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
+      --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
+      
+      --radius-sm: 4px;
+      --radius-md: 8px;
+      --radius-lg: 12px;
+      
+      --shadow-card: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
     }
-    * { box-sizing:border-box; margin:0; padding:0; font-family:'Courier New', monospace; }
+
+    /* ===== RESET & BASE ===== */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    
+    html { scroll-behavior: smooth; }
+    
     body {
       background: var(--bg);
-      background-image: radial-gradient(circle at 50% 50%, rgba(0,243,255,0.04) 0%, transparent 60%),
-                        linear-gradient(rgba(0,243,255,0.05) 1px, transparent 1px),
-                        linear-gradient(90deg, rgba(0,243,255,0.05) 1px, transparent 1px);
-      background-size: 100% 100%, 30px 30px, 30px 30px;
-      color: var(--text); display:flex; justify-content:center; min-height:100vh; padding:20px;
-      overflow-x:hidden;
+      background-image: 
+        radial-gradient(ellipse at 50% 0%, rgba(0,243,255,0.08) 0%, transparent 50%),
+        radial-gradient(ellipse at 100% 100%, rgba(5,255,161,0.06) 0%, transparent 50%),
+        linear-gradient(rgba(17,24,39,0.9) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(17,24,39,0.9) 1px, transparent 1px);
+      background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
+      color: var(--text);
+      font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
+      font-size: 16px;
+      line-height: 1.5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      min-height: 100vh;
+      padding: 16px;
+      overflow-x: hidden;
     }
-    #app { max-width:720px; width:100%; background:var(--panel); padding:24px; border:1px solid var(--dim); border-radius:4px; position:relative; }
-    .scanlines::before { content:""; position:fixed; top:0; left:0; width:100%; height:100%; background: repeating-linear-gradient(0deg, transparent, transparent 2px, rgba(0,0,0,0.25) 3px); pointer-events:none; z-index:999; mix-blend-mode:overlay; }
+
+    /* ===== SCANLINE EFFECT ===== */
+    .scanlines::before {
+      content: "";
+      position: fixed;
+      top: 0; left: 0;
+      width: 100%; height: 100%;
+      background: repeating-linear-gradient(
+        0deg,
+        transparent,
+        transparent 2px,
+        rgba(0, 0, 0, 0.15) 3px
+      );
+      pointer-events: none;
+      z-index: 1000;
+      mix-blend-mode: multiply;
+      animation: scanline 8s linear infinite;
+    }
     
-    h1 { font-size:1.1rem; color:var(--cyan); margin-bottom:6px; letter-spacing:2px; text-shadow: var(--glow-cyan); }
-    .sub { font-size:0.75rem; color:var(--dim); margin-bottom:20px; border-bottom:1px dashed var(--dim); padding-bottom:8px; }
+    @keyframes scanline {
+      0% { background-position: 0 0; }
+      100% { background-position: 0 100%; }
+    }
+
+    /* ===== APP CONTAINER ===== */
+    #app {
+      width: 100%;
+      max-width: 760px;
+      background: var(--panel);
+      border: 1px solid var(--dim);
+      border-radius: var(--radius-lg);
+      padding: 28px;
+      position: relative;
+      box-shadow: var(--shadow-card);
+      backdrop-filter: blur(8px);
+      transition: opacity var(--transition-normal), transform var(--transition-normal);
+    }
     
+    #app::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 2px;
+      background: linear-gradient(90deg, transparent, var(--cyan), var(--green), var(--cyan), transparent);
+      animation: borderGlow 3s ease-in-out infinite;
+    }
+    
+    @keyframes borderGlow {
+      0%, 100% { opacity: 0.6; }
+      50% { opacity: 1; }
+    }
+
+    /* ===== TYPOGRAPHY ===== */
+    h1 {
+      font-size: 1.25rem;
+      color: var(--cyan);
+      margin-bottom: 4px;
+      letter-spacing: 3px;
+      text-shadow: var(--glow-cyan);
+      text-transform: uppercase;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    
+    h1::before {
+      content: "◈";
+      animation: pulse 2s ease-in-out infinite;
+    }
+    
+    @keyframes pulse {
+      0%, 100% { opacity: 1; transform: scale(1); }
+      50% { opacity: 0.7; transform: scale(0.95); }
+    }
+    
+    .sub {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      margin-bottom: 24px;
+      padding-bottom: 12px;
+      border-bottom: 1px dashed var(--dim);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+
+    /* ===== BUTTONS ===== */
     .btn {
-      background:transparent; color:var(--cyan); border:1px solid var(--cyan); padding:10px 16px; cursor:pointer; font-family:inherit; margin:6px 4px 6px 0; transition:0.2s; position:relative; overflow:hidden;
+      background: transparent;
+      color: var(--cyan);
+      border: 1px solid var(--cyan);
+      padding: 12px 20px;
+      cursor: pointer;
+      font: inherit;
+      font-size: 0.875rem;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      transition: all var(--transition-fast);
+      position: relative;
+      overflow: hidden;
+      border-radius: var(--radius-sm);
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      min-height: 44px;
     }
-    .btn:hover { background:rgba(0,243,255,0.15); box-shadow:var(--glow-cyan); transform:translateY(-1px); }
-    .btn.warn { border-color:var(--warn); color:var(--warn); }
-    .btn.warn:hover { background:rgba(255,51,102,0.15); box-shadow: 0 0 8px var(--warn); }
-    .btn::after { content:""; position:absolute; bottom:0; left:0; width:0%; height:2px; background:currentColor; transition:0.3s; }
-    .btn:hover::after { width:100%; }
-
-    .progress-bar { height:8px; background:#151b25; margin:14px 0 20px; border-radius:2px; overflow:hidden; border:1px solid var(--dim); }
-    .progress-fill { height:100%; background: linear-gradient(90deg, var(--cyan), var(--green)); width:0%; transition:width 0.4s cubic-bezier(0.4,0,0.2,1); box-shadow: var(--glow-green); }
     
-    .q-container { min-height:160px; margin-bottom:18px; background:var(--frame); padding:16px; border-left:2px solid var(--cyan); }
-    .q-text { font-size:0.95rem; margin-bottom:16px; line-height:1.5; color:#e6eef5; }
-    .options { display:flex; flex-direction:column; gap:8px; }
+    .btn:hover:not(:disabled) {
+      background: rgba(0, 243, 255, 0.12);
+      box-shadow: var(--glow-cyan);
+      transform: translateY(-2px);
+      border-color: var(--cyan);
+    }
+    
+    .btn:active:not(:disabled) {
+      transform: translateY(0);
+    }
+    
+    .btn:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: 2px;
+    }
+    
+    .btn::after {
+      content: "";
+      position: absolute;
+      bottom: 0; left: 0;
+      width: 0%;
+      height: 2px;
+      background: currentColor;
+      transition: width var(--transition-normal);
+    }
+    
+    .btn:hover::after { width: 100%; }
+    
+    .btn.warn {
+      border-color: var(--warn);
+      color: var(--warn);
+    }
+    
+    .btn.warn:hover:not(:disabled) {
+      background: rgba(255, 51, 102, 0.12);
+      box-shadow: var(--glow-warn);
+    }
+    
+    .btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+      transform: none !important;
+    }
+    
+    .btn-primary {
+      background: rgba(0, 243, 255, 0.1);
+      border-color: var(--cyan);
+    }
+    
+    .btn-success {
+      border-color: var(--green);
+      color: var(--green);
+    }
+    
+    .btn-success:hover:not(:disabled) {
+      background: rgba(5, 255, 161, 0.12);
+      box-shadow: var(--glow-green);
+    }
+
+    /* ===== PROGRESS BAR ===== */
+    .progress-wrapper {
+      margin: 20px 0 28px;
+    }
+    
+    .progress-bar {
+      height: 6px;
+      background: var(--frame);
+      border-radius: 3px;
+      overflow: hidden;
+      border: 1px solid var(--dim);
+      position: relative;
+    }
+    
+    .progress-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), var(--green));
+      width: 0%;
+      transition: width var(--transition-normal);
+      box-shadow: var(--glow-green);
+      position: relative;
+    }
+    
+    .progress-fill::after {
+      content: "";
+      position: absolute;
+      top: 0; right: 0;
+      width: 2px;
+      height: 100%;
+      background: white;
+      opacity: 0.8;
+      animation: progressScan 1s ease-in-out infinite;
+    }
+    
+    @keyframes progressScan {
+      0%, 100% { opacity: 0; }
+      50% { opacity: 0.8; }
+    }
+    
+    .progress-text {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      text-align: right;
+      margin-top: 6px;
+      letter-spacing: 1px;
+    }
+
+    /* ===== QUESTION CONTAINER ===== */
+    .q-container {
+      min-height: 180px;
+      margin-bottom: 24px;
+      background: var(--frame);
+      padding: 20px;
+      border-left: 3px solid var(--cyan);
+      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+      position: relative;
+      transition: border-color var(--transition-fast);
+    }
+    
+    .q-container::before {
+      content: "";
+      position: absolute;
+      top: 0; left: 0; right: 0;
+      height: 1px;
+      background: linear-gradient(90deg, transparent, var(--dim), transparent);
+    }
+    
+    .q-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      letter-spacing: 1px;
+      text-transform: uppercase;
+    }
+    
+    .q-text {
+      font-size: 1rem;
+      line-height: 1.6;
+      color: var(--text);
+      min-height: 3.2em;
+      display: flex;
+      align-items: center;
+    }
+    
+    .q-text.typing::after {
+      content: "▊";
+      animation: blink 1s step-end infinite;
+      margin-left: 2px;
+      color: var(--cyan);
+    }
+    
+    @keyframes blink { 50% { opacity: 0; } }
+
+    /* ===== OPTIONS ===== */
+    .options {
+      display: flex;
+      flex-direction: column;
+      gap: 10px;
+      margin-top: 8px;
+    }
+    
     .opt {
-      padding:10px 14px; background:#0d121a; border:1px solid var(--dim); cursor:pointer; transition:0.2s; border-radius:2px; position:relative;
+      padding: 14px 16px;
+      background: #0d121a;
+      border: 1px solid var(--dim);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all var(--transition-fast);
+      position: relative;
+      font-size: 0.9rem;
+      display: flex;
+      align-items: center;
+      gap: 12px;
     }
-    .opt:hover { border-color:var(--cyan); background:#111a24; box-shadow: inset 0 0 0 1px var(--cyan); }
-    .opt.selected { border-color:var(--green); background:rgba(5,255,161,0.08); box-shadow: inset 0 0 0 1px var(--green); }
-    .opt::before { content:"▸"; position:absolute; left:8px; opacity:0; color:var(--cyan); transition:0.2s; }
-    .opt:hover::before, .opt.selected::before { opacity:1; }
-
-    .hidden { display:none !important; }
     
-    .result-box { padding:16px; background:var(--frame); border:1px solid var(--dim); margin-top:12px; border-radius:2px; }
-    .dim-grid { display:grid; grid-template-columns:1fr 1fr; gap:8px; margin:12px 0; }
-    .dim-item { padding:8px; background:#0d121a; font-size:0.8rem; border:1px solid var(--dim); border-radius:2px; display:flex; justify-content:space-between; }
-    .dim-val { color:var(--cyan); font-weight:bold; }
+    .opt::before {
+      content: "○";
+      color: var(--dim);
+      font-size: 1.1rem;
+      transition: all var(--transition-fast);
+      min-width: 20px;
+    }
+    
+    .opt:hover {
+      border-color: var(--cyan);
+      background: rgba(0, 243, 255, 0.08);
+      transform: translateX(4px);
+    }
+    
+    .opt:hover::before {
+      content: "◉";
+      color: var(--cyan);
+    }
+    
+    .opt.selected {
+      border-color: var(--green);
+      background: rgba(5, 255, 161, 0.1);
+      box-shadow: inset 0 0 0 1px var(--green);
+    }
+    
+    .opt.selected::before {
+      content: "●";
+      color: var(--green);
+      text-shadow: 0 0 8px var(--green);
+    }
+    
+    .opt:focus-visible {
+      outline: 2px solid var(--cyan);
+      outline-offset: -1px;
+    }
+
+    /* ===== CONTROLS ===== */
+    .controls {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-wrap: wrap;
+      gap: 12px;
+      padding-top: 16px;
+      border-top: 1px solid var(--dim);
+    }
+    
+    .q-counter {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      letter-spacing: 2px;
+      font-weight: 600;
+    }
+    
+    .nav-group {
+      display: flex;
+      gap: 8px;
+    }
+
+    /* ===== SCREENS ===== */
+    .screen {
+      animation: fadeIn var(--transition-normal);
+    }
+    
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(8px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    
+    .hidden { display: none !important; }
+
+    /* ===== MENU ===== */
+    .menu-actions {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+      margin: 24px 0;
+    }
+    
+    .status {
+      font-size: 0.75rem;
+      color: var(--text-dim);
+      padding: 12px;
+      background: var(--frame);
+      border-radius: var(--radius-sm);
+      border-left: 2px solid var(--dim);
+      font-style: italic;
+    }
+    
+    .status.success {
+      border-left-color: var(--success);
+      color: var(--success);
+    }
+    
+    .status.warn {
+      border-left-color: var(--warn);
+      color: var(--warn);
+    }
+
+    /* ===== RESULTS ===== */
+    .result-header {
+      text-align: center;
+      padding: 20px 0;
+      border-bottom: 1px dashed var(--dim);
+      margin-bottom: 20px;
+    }
     
     .type-code {
-      font-size:2.2rem; color:var(--green); letter-spacing:3px; margin:12px 0; text-align:center; text-shadow: 0 0 10px var(--green);
-      position:relative; display:inline-block; animation: glitch 3s infinite;
+      font-size: 3rem;
+      color: var(--green);
+      letter-spacing: 8px;
+      text-shadow: var(--glow-green);
+      position: relative;
+      display: inline-block;
+      animation: glitch 4s infinite;
+      font-weight: 700;
     }
+    
     @keyframes glitch {
-      0%, 90%, 100% { transform:translate(0); }
-      92% { transform:translate(-2px, 1px); text-shadow: -2px 0 var(--magenta), 2px 0 var(--cyan); }
-      94% { transform:translate(2px, -1px); }
-      96% { transform:translate(0); }
+      0%, 90%, 100% { transform: translate(0); text-shadow: var(--glow-green); }
+      92% { transform: translate(-2px, 1px); text-shadow: -2px 0 var(--magenta), 2px 0 var(--cyan); }
+      94% { transform: translate(2px, -1px); }
+      96% { transform: translate(0); }
+      98% { transform: translate(-1px, 0); text-shadow: 0 -2px var(--cyan), 0 2px var(--magenta); }
     }
-    .profile { font-size:0.85rem; line-height:1.6; color:#b0c4d6; margin-top:10px; white-space:pre-wrap; border-top:1px dashed var(--dim); padding-top:10px; }
-    .status { font-size:0.7rem; color:var(--dim); margin-top:12px; font-style:italic; }
-    .controls { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:8px; }
-    .q-counter { font-size:0.75rem; color:var(--dim); letter-spacing:1px; }
+    
+    .type-label {
+      font-size: 0.875rem;
+      color: var(--cyan);
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      margin-top: 8px;
+    }
+    
+    .dim-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 10px;
+      margin: 20px 0;
+    }
+    
+    .dim-item {
+      padding: 12px 14px;
+      background: var(--frame);
+      border: 1px solid var(--dim);
+      border-radius: var(--radius-sm);
+      font-size: 0.85rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      transition: border-color var(--transition-fast);
+    }
+    
+    .dim-item:hover {
+      border-color: var(--cyan);
+    }
+    
+    .dim-val {
+      color: var(--cyan);
+      font-weight: 700;
+      font-size: 1rem;
+      min-width: 32px;
+      text-align: right;
+    }
+    
+    .dim-bar {
+      height: 4px;
+      background: var(--dim);
+      border-radius: 2px;
+      margin-top: 6px;
+      overflow: hidden;
+    }
+    
+    .dim-fill {
+      height: 100%;
+      background: linear-gradient(90deg, var(--cyan), var(--green));
+      width: 0%;
+      transition: width var(--transition-slow);
+    }
+    
+    .result-box {
+      padding: 20px;
+      background: var(--frame);
+      border: 1px solid var(--dim);
+      border-radius: var(--radius-sm);
+      margin: 20px 0;
+    }
+    
+    .result-box-title {
+      font-weight: 600;
+      color: var(--cyan);
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+      text-transform: uppercase;
+      font-size: 0.875rem;
+      display: flex;
+      align-items: center;
+      gap: 8px;
+    }
+    
+    .result-box-title::before {
+      content: "▸";
+      color: var(--green);
+    }
+    
+    .profile {
+      font-size: 0.9rem;
+      line-height: 1.7;
+      color: var(--text);
+      white-space: pre-wrap;
+    }
+    
+    .profile strong {
+      color: var(--cyan);
+    }
+    
+    .profile em {
+      color: var(--amber);
+      font-style: normal;
+    }
 
-    @media (max-width:600px) {
-      #app { padding:16px; } .type-code { font-size:1.8rem; } .dim-grid { grid-template-columns:1fr; }
+    /* ===== ACTIONS ===== */
+    .result-actions {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 10px;
+      justify-content: center;
+      margin-top: 24px;
+      padding-top: 20px;
+      border-top: 1px dashed var(--dim);
+    }
+
+    /* ===== TOAST NOTIFICATIONS ===== */
+    .toast {
+      position: fixed;
+      bottom: 24px;
+      right: 24px;
+      padding: 14px 20px;
+      background: var(--panel);
+      border: 1px solid var(--cyan);
+      border-radius: var(--radius-md);
+      color: var(--text);
+      font-size: 0.875rem;
+      box-shadow: var(--glow-cyan), var(--shadow-card);
+      z-index: 2000;
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      animation: slideIn 300ms ease, fadeOut 300ms ease 2700ms forwards;
+      max-width: 320px;
+    }
+    
+    .toast.success { border-color: var(--success); }
+    .toast.warn { border-color: var(--warn); }
+    
+    .toast::before {
+      content: "✓";
+      color: var(--success);
+      font-weight: bold;
+    }
+    
+    .toast.warn::before {
+      content: "⚠";
+      color: var(--warn);
+    }
+    
+    @keyframes slideIn {
+      from { transform: translateX(120%); opacity: 0; }
+      to { transform: translateX(0); opacity: 1; }
+    }
+    
+    @keyframes fadeOut {
+      to { opacity: 0; transform: translateX(20px); }
+    }
+
+    /* ===== CONFIRM MODAL ===== */
+    .modal-overlay {
+      position: fixed;
+      top: 0; left: 0; right: 0; bottom: 0;
+      background: rgba(3, 5, 8, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 1500;
+      padding: 20px;
+      animation: fadeIn var(--transition-fast);
+    }
+    
+    .modal {
+      background: var(--panel);
+      border: 1px solid var(--warn);
+      border-radius: var(--radius-lg);
+      padding: 24px;
+      max-width: 420px;
+      width: 100%;
+      box-shadow: var(--glow-warn), var(--shadow-card);
+    }
+    
+    .modal-title {
+      color: var(--warn);
+      font-size: 1.1rem;
+      margin-bottom: 12px;
+      letter-spacing: 1px;
+    }
+    
+    .modal-text {
+      color: var(--text-dim);
+      margin-bottom: 20px;
+      font-size: 0.9rem;
+      line-height: 1.6;
+    }
+    
+    .modal-actions {
+      display: flex;
+      gap: 10px;
+      justify-content: flex-end;
+    }
+
+    /* ===== LOADING ===== */
+    .loading {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 12px;
+      padding: 40px 20px;
+      color: var(--cyan);
+    }
+    
+    .spinner {
+      width: 24px;
+      height: 24px;
+      border: 2px solid var(--dim);
+      border-top-color: var(--cyan);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ===== RESPONSIVE ===== */
+    @media (max-width: 640px) {
+      #app { padding: 20px 16px; }
+      h1 { font-size: 1.1rem; }
+      .type-code { font-size: 2.4rem; letter-spacing: 4px; }
+      .dim-grid { grid-template-columns: 1fr; }
+      .controls { flex-direction: column; align-items: stretch; }
+      .nav-group { justify-content: center; }
+      .q-text { font-size: 0.95rem; }
+      .opt { padding: 12px 14px; font-size: 0.875rem; }
+    }
+
+    /* ===== ACCESSIBILITY ===== */
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+    
+    .sr-only {
+      position: absolute;
+      width: 1px; height: 1px;
+      padding: 0; margin: -1px;
+      overflow: hidden;
+      clip: rect(0, 0, 0, 0);
+      white-space: nowrap;
+      border: 0;
     }
   </style>
 </head>
 <body>
   <div class="scanlines">
-    <div id="app">
-      <h1>CORE//PROFILE ANALYSIS</h1>
-      <div class="sub">SISTEMA DE EVALUACIÓN COGNITIVA // MBTI-OPS v2.1 // PERSISTENCIA LOCAL</div>
+    <div id="app" role="application" aria-label="Sistema de Evaluación Cognitiva">
       
-      <div id="menu">
-        <button class="btn" onclick="startTest()">INICIAR EVALUACIÓN</button>
-        <button class="btn" id="btnResume" onclick="resumeTest()" class="hidden">CARGAR SESIÓN</button>
-        <button class="btn warn" onclick="resetData()">PURGAR DATOS</button>
-        <div class="status" id="menuStatus">Sistema listo. Esperando entrada de operador.</div>
-      </div>
+      <!-- HEADER -->
+      <header>
+        <h1 aria-label="Core Profile Analysis">CORE//PROFILE</h1>
+        <div class="sub">MBTI-OPS v3.0 • Evaluación Cognitiva • Persistencia Local</div>
+      </header>
 
-      <div id="testScreen" class="hidden">
-        <div class="progress-bar"><div class="progress-fill" id="progress"></div></div>
+      <!-- MENU SCREEN -->
+      <section id="menu" class="screen" aria-live="polite">
+        <div class="menu-actions">
+          <button class="btn btn-primary" onclick="startTest()" aria-label="Iniciar nueva evaluación">
+            <span>▶</span> INICIAR EVALUACIÓN
+          </button>
+          <button class="btn" id="btnResume" onclick="resumeTest()" aria-label="Continuar sesión guardada" hidden>
+            <span>↻</span> CARGAR SESIÓN
+          </button>
+          <button class="btn warn" onclick="confirmReset()" aria-label="Borrar datos guardados">
+            <span>⨯</span> PURGAR DATOS
+          </button>
+        </div>
+        <div class="status" id="menuStatus" role="status">
+          Sistema inicializado. Esperando entrada de operador...
+        </div>
+      </section>
+
+      <!-- TEST SCREEN -->
+      <section id="testScreen" class="screen hidden" aria-live="polite">
+        <div class="progress-wrapper">
+          <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
+            <div class="progress-fill" id="progress" aria-hidden="true"></div>
+          </div>
+          <div class="progress-text" id="progressText">0/60 preguntas</div>
+        </div>
+        
         <div class="q-container">
-          <div class="q-text" id="qText"></div>
-          <div class="options" id="qOptions"></div>
+          <div class="q-header">
+            <span id="qDimension">DIMENSIÓN: --</span>
+            <span id="qNumber">01/60</span>
+          </div>
+          <div class="q-text typing" id="qText" aria-live="assertive"></div>
+          
+          <fieldset class="options" id="qOptions" role="radiogroup" aria-label="Opciones de respuesta">
+            <!-- Options injected by JS -->
+          </fieldset>
         </div>
+        
         <div class="controls">
-          <button class="btn" onclick="prevQ()">← ATRÁS</button>
-          <span class="q-counter" id="qCounter">00/60</span>
-          <button class="btn" onclick="nextQ()">SIGUIENTE →</button>
+          <div class="nav-group">
+            <button class="btn" onclick="prevQ()" id="btnPrev" aria-label="Pregunta anterior" disabled>
+              ← ATRÁS
+            </button>
+            <button class="btn" onclick="nextQ()" id="btnNext" aria-label="Siguiente pregunta" disabled>
+              SIGUIENTE →
+            </button>
+          </div>
+          <span class="q-counter" id="qCounter" aria-live="polite">00/60</span>
         </div>
-      </div>
+      </section>
 
-      <div id="resultScreen" class="hidden">
-        <div style="text-align:center;"><span class="type-code" id="typeCode">----</span></div>
-        <div class="dim-grid" id="dimGrid"></div>
+      <!-- RESULT SCREEN -->
+      <section id="resultScreen" class="screen hidden" aria-live="polite">
+        <div class="result-header">
+          <div class="type-code" id="typeCode" aria-label="Tipo de personalidad">----</div>
+          <div class="type-label" id="typeLabel">ANALIZANDO PATRONES...</div>
+        </div>
+        
+        <div class="dim-grid" id="dimGrid" role="list" aria-label="Dimensiones cognitivas">
+          <!-- Dimensions injected by JS -->
+        </div>
+        
         <div class="result-box">
-          <div style="font-weight:bold; color:var(--cyan); margin-bottom:8px; letter-spacing:1px;">▸ PERFIL OPERATIVO</div>
+          <div class="result-box-title">PERFIL OPERATIVO</div>
           <div class="profile" id="profileText"></div>
         </div>
-        <div style="margin-top:14px; text-align:center;">
-          <button class="btn" onclick="resetData(); startTest();">REINICIAR PROTOCOLO</button>
+        
+        <div class="result-actions">
+          <button class="btn btn-success" onclick="copyResult()" aria-label="Copiar resultados">
+            📋 COPIAR RESULTADO
+          </button>
+          <button class="btn" onclick="exportJSON()" aria-label="Exportar como JSON">
+            💾 EXPORTAR JSON
+          </button>
+          <button class="btn warn" onclick="resetAndRestart()" aria-label="Reiniciar protocolo">
+            ↻ REINICIAR
+          </button>
         </div>
-      </div>
+      </section>
+
     </div>
   </div>
 
+  <!-- TOAST CONTAINER -->
+  <div id="toastContainer" aria-live="assertive" aria-atomic="true"></div>
+
   <script>
-    const Q = [
+    /* ===== DATA: QUESTIONS ===== */
+    const QUESTIONS = [
+      // E/I - 15 questions
       {t:"Prefiero interactuar con varias personas antes que estar solo.", d:"E", dir:1},
       {t:"Me agoto rápido en reuniones largas y necesito tiempo a solas.", d:"E", dir:-1},
       {t:"Suelo pensar en voz alta para organizar mis ideas.", d:"E", dir:1},
@@ -135,7 +831,8 @@
       {t:"Me resulta fácil mantener varias conversaciones simultáneas.", d:"E", dir:1},
       {t:"Necesito tiempo de reflexión antes de tomar decisiones grupales.", d:"E", dir:-1},
       {t:"La energía me viene de la acción y el contacto directo.", d:"E", dir:1},
-
+      
+      // S/N - 15 questions
       {t:"Me fijo en datos concretos y hechos verificables.", d:"S", dir:1},
       {t:"Me interesan más las posibilidades futuras que los detalles actuales.", d:"S", dir:-1},
       {t:"Prefiero instrucciones claras y pasos definidos.", d:"S", dir:1},
@@ -151,7 +848,8 @@
       {t:"Valoro la precisión y los hechos comprobados.", d:"S", dir:1},
       {t:"Prefiero explorar el 'qué podría ser' antes que el 'qué es'.", d:"S", dir:-1},
       {t:"Me siento cómodo trabajando con lo presente y lo concreto.", d:"S", dir:1},
-
+      
+      // T/F - 15 questions
       {t:"Tomo decisiones basándome en lógica y eficiencia.", d:"T", dir:1},
       {t:"Considero el impacto emocional en otros antes de decidir.", d:"T", dir:-1},
       {t:"Prefiero la justicia objetiva sobre la armonía grupal.", d:"T", dir:1},
@@ -167,7 +865,8 @@
       {t:"Busco la opción más racional, no la más popular.", d:"T", dir:1},
       {t:"Priorizo el bienestar del equipo sobre la eficiencia pura.", d:"T", dir:-1},
       {t:"Aprecio el debate intelectual por encima del consenso fácil.", d:"T", dir:1},
-
+      
+      // J/P - 15 questions
       {t:"Planifico con antelación y sigo calendarios.", d:"J", dir:1},
       {t:"Prefiero mantener opciones abiertas y adaptarme.", d:"J", dir:-1},
       {t:"Me estresa dejar tareas sin cerrar.", d:"J", dir:1},
@@ -185,136 +884,455 @@
       {t:"Prefiero un entorno predecible y controlado.", d:"J", dir:1}
     ];
 
-    const SCALE = ["Nada de acuerdo","Poco de acuerdo","Neutral","Bastante de acuerdo","Totalmente de acuerdo"];
-    const STORAGE_KEY = "mbti_ops_state_v2";
-    let state = { idx:0, answers: new Array(Q.length).fill(null), dims:{E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0} };
+    const SCALE = [
+      {label:"Nada de acuerdo", value:1},
+      {label:"Poco de acuerdo", value:2},
+      {label:"Neutral", value:3},
+      {label:"Bastante de acuerdo", value:4},
+      {label:"Totalmente de acuerdo", value:5}
+    ];
 
-    function init(){
-      const saved = localStorage.getItem(STORAGE_KEY);
-      const btnResume = document.getElementById("btnResume");
-      if(saved){
-        try{
-          const s = JSON.parse(saved);
-          if(s.answers && s.answers.length === Q.length){
-            state = s;
-            btnResume.classList.remove("hidden");
-            document.getElementById("menuStatus").textContent = `Sesión guardada: ${state.answers.filter(a=>a!==null).length}/${Q.length} preguntas respondidas.`;
-            return;
+    const PROFILES = {
+      ENTJ:"<strong>COMANDANTE</strong> • Liderazgo estratégico, enfoque en eficiencia y resultados. Alta tolerancia a la presión. <em>Puntos ciegos:</em> rigidez interpersonal, impaciencia con procesos lentos.",
+      ENTP:"<strong>INNOVADOR</strong> • Rápido en identificar fallos sistémicos y proponer alternativas. Creatividad disruptiva. <em>Puntos ciegos:</em> dispersión, dificultad con cierre operativo.",
+      ESTJ:"<strong>ADMINISTRADOR</strong> • Ejecución metódica, cumplimiento de protocolos, lealtad institucional. <em>Puntos ciegos:</em> resistencia a lo no probado, rigidez ante cambios.",
+      ESTP:"<strong>TÁCTICO</strong> • Acción inmediata, adaptación en terreno, gestión de crisis. <em>Puntos ciegos:</em> impulsividad, desprecio por planificación a largo plazo.",
+      INTJ:"<strong>ESTRATEGA</strong> • Visión a largo plazo, arquitectura de sistemas, autonomía operativa. <em>Puntos ciegos:</em> sobreanálisis, frialdad percibida, aislamiento.",
+      INTP:"<strong>ANALISTA</strong> • Desmontaje lógico de problemas, modelado abstracto, precisión técnica. <em>Puntos ciegos:</em> parálisis por opción, ejecución lenta.",
+      ISTJ:"<strong>LOGÍSTICO</strong> • Confiabilidad, mantenimiento de estándares, ejecución silenciosa. <em>Puntos ciegos:</em> aversión al cambio, burocracia interna.",
+      ISTP:"<strong>OPERADOR</strong> • Resolución práctica, manejo de herramientas, calma bajo presión. <em>Puntos ciegos:</em> aislamiento, desinterés por coordinación.",
+      ENFJ:"<strong>MENTOR</strong> • Movilización de equipos, cohesión, comunicación persuasiva. <em>Puntos ciegos:</em> sobrecompromiso emocional, evitación de conflictos necesarios.",
+      ENFP:"<strong>EXPLORADOR</strong> • Generación de ideas, adaptabilidad, conexión humana auténtica. <em>Puntos ciegos:</em> inconsistencia, dificultad con rutinas estructuradas.",
+      ESFJ:"<strong>COORDINADOR</strong> • Soporte operativo, mantenimiento de clima, gestión de recursos humanos. <em>Puntos ciegos:</em> dependencia de aprobación externa, evitación de crítica.",
+      ESFP:"<strong>EJECUTOR</strong> • Presencia en terreno, manejo de imprevistos, comunicación directa. <em>Puntos ciegos:</em> falta de planificación, dificultad con seguimiento.",
+      INFJ:"<strong>ARQUITECTO SOCIAL</strong> • Lectura de dinámicas, visión sistémica, ética operativa. <em>Puntos ciegos:</em> idealismo, agotamiento por sobrecarga empática.",
+      INFP:"<strong>MEDIADOR</strong> • Alineación con valores, creatividad estructural, resiliencia moral. <em>Puntos ciegos:</em> evitación de confrontación, pragmatismo limitado.",
+      ISFJ:"<strong>PROTECTOR</strong> • Mantenimiento de infraestructura humana, lealtad, detalle operativo. <em>Puntos ciegos:</em> resistencia a innovación, autosacrificio.",
+      ISFP:"<strong>ARTESANO</strong> • Adaptación silenciosa, ejecución precisa, sensibilidad al entorno. <em>Puntos ciegos:</em> pasividad en decisiones, dificultad con estructura."
+    };
+
+    /* ===== STATE MANAGEMENT ===== */
+    const STORAGE_KEY = "mbti_ops_state_v3";
+    let state = {
+      idx: 0,
+      answers: new Array(QUESTIONS.length).fill(null),
+      dims: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0},
+      completed: false
+    };
+
+    /* ===== INITIALIZATION ===== */
+    function init() {
+      loadState();
+      updateMenuStatus();
+      setupKeyboardNav();
+      attachEventListeners();
+    }
+
+    function loadState() {
+      try {
+        const saved = localStorage.getItem(STORAGE_KEY);
+        if (saved) {
+          const parsed = JSON.parse(saved);
+          if (parsed.answers?.length === QUESTIONS.length) {
+            state = {...state, ...parsed};
+            document.getElementById('btnResume').hidden = false;
           }
-        }catch(e){}
+        }
+      } catch (e) {
+        console.warn('Error loading state:', e);
+        showToast('Error cargando sesión', 'warn');
       }
-      btnResume.classList.add("hidden");
-      document.getElementById("menuStatus").textContent = "Sistema limpio. Ninguna sesión activa.";
     }
 
-    function startTest(){
-      state = { idx:0, answers: new Array(Q.length).fill(null), dims:{E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0} };
-      document.getElementById("btnResume").classList.add("hidden");
-      showScreen("testScreen"); renderQ(); save();
+    function saveState() {
+      try {
+        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+      } catch (e) {
+        console.warn('Error saving state:', e);
+      }
     }
 
-    function resumeTest(){
-      showScreen("testScreen"); renderQ();
+    function updateMenuStatus() {
+      const status = document.getElementById('menuStatus');
+      const answered = state.answers.filter(a => a !== null).length;
+      
+      if (state.completed) {
+        status.textContent = `✓ Evaluación completada. Tipo: ${calculateType()}`;
+        status.className = 'status success';
+      } else if (answered > 0) {
+        status.textContent = `Sesión guardada: ${answered}/${QUESTIONS.length} respondidas`;
+        status.className = 'status warn';
+      } else {
+        status.textContent = 'Sistema listo. Esperando entrada de operador...';
+        status.className = 'status';
+      }
     }
 
-    function resetData(){
+    /* ===== NAVIGATION ===== */
+    function showScreen(id) {
+      document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
+      document.getElementById(id).classList.remove('hidden');
+      
+      // Focus management for accessibility
+      if (id === 'testScreen') {
+        setTimeout(() => {
+          const firstOpt = document.querySelector('.opt');
+          if (firstOpt) firstOpt.focus();
+        }, 100);
+      }
+    }
+
+    function startTest() {
+      state = {
+        idx: 0,
+        answers: new Array(QUESTIONS.length).fill(null),
+        dims: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0},
+        completed: false
+      };
+      document.getElementById('btnResume').hidden = true;
+      showScreen('testScreen');
+      renderQuestion();
+      saveState();
+      showToast('Evaluación iniciada');
+    }
+
+    function resumeTest() {
+      if (state.completed) {
+        showScreen('resultScreen');
+        renderResults();
+      } else {
+        showScreen('testScreen');
+        renderQuestion();
+      }
+      showToast('Sesión cargada');
+    }
+
+    function resetAndRestart() {
+      resetData();
+      startTest();
+    }
+
+    function confirmReset() {
+      const modal = document.createElement('div');
+      modal.className = 'modal-overlay';
+      modal.innerHTML = `
+        <div class="modal" role="alertdialog" aria-labelledby="modalTitle" aria-describedby="modalDesc">
+          <h3 class="modal-title" id="modalTitle">⚠ CONFIRMACIÓN</h3>
+          <p class="modal-text" id="modalDesc">¿Purgar todos los datos de la sesión actual? Esta acción no se puede deshacer.</p>
+          <div class="modal-actions">
+            <button class="btn" onclick="closeModal(this)">CANCELAR</button>
+            <button class="btn warn" onclick="executeReset(this)">CONFIRMAR PURGA</button>
+          </div>
+        </div>
+      `;
+      document.body.appendChild(modal);
+      
+      // Close on escape
+      const onKey = (e) => {
+        if (e.key === 'Escape') closeModal(modal);
+      };
+      document.addEventListener('keydown', onKey);
+      modal.dataset.cleanup = () => document.removeEventListener('keydown', onKey);
+    }
+
+    function closeModal(btn) {
+      const modal = btn.closest('.modal-overlay');
+      modal?.dataset.cleanup?.();
+      modal?.remove();
+    }
+
+    function executeReset(btn) {
+      resetData();
+      closeModal(btn);
+      showToast('Datos purgados', 'success');
+    }
+
+    function resetData() {
       localStorage.removeItem(STORAGE_KEY);
-      state = { idx:0, answers: new Array(Q.length).fill(null), dims:{E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0} };
-      showScreen("menu"); init();
+      state = {
+        idx: 0,
+        answers: new Array(QUESTIONS.length).fill(null),
+        dims: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0},
+        completed: false
+      };
+      updateMenuStatus();
     }
 
-    function showScreen(id){
-      ["menu","testScreen","resultScreen"].forEach(s=>document.getElementById(s).classList.add("hidden"));
-      document.getElementById(id).classList.remove("hidden");
+    /* ===== QUESTION RENDERING ===== */
+    function renderQuestion() {
+      const q = QUESTIONS[state.idx];
+      const progress = ((state.idx) / QUESTIONS.length) * 100;
+      
+      // Update progress
+      document.getElementById('progress').style.width = `${progress}%`;
+      document.getElementById('progress').parentElement.setAttribute('aria-valuenow', Math.round(progress));
+      document.getElementById('progressText').textContent = `${state.idx + 1}/${QUESTIONS.length} preguntas`;
+      document.getElementById('qCounter').textContent = `${String(state.idx + 1).padStart(2,'0')}/${QUESTIONS.length}`;
+      document.getElementById('qNumber').textContent = `${String(state.idx + 1).padStart(2,'0')}/${QUESTIONS.length}`;
+      document.getElementById('qDimension').textContent = `DIMENSIÓN: ${getDimensionLabel(q.d)}`;
+      
+      // Animate question text
+      const qText = document.getElementById('qText');
+      qText.classList.add('typing');
+      typeText(qText, `[${String(state.idx + 1).padStart(2, '0')}] ${q.t}`, 15);
+      
+      // Render options
+      renderOptions(q, state.answers[state.idx]);
+      
+      // Update navigation buttons
+      document.getElementById('btnPrev').disabled = state.idx === 0;
+      document.getElementById('btnNext').disabled = state.answers[state.idx] === null;
     }
 
-    function renderQ(){
-      const q = Q[state.idx];
-      document.getElementById("qText").textContent = `[${String(state.idx+1).padStart(2,'0')}] ${q.t}`;
-      document.getElementById("qCounter").textContent = `${String(state.idx+1).padStart(2,'0')}/${Q.length}`;
-      document.getElementById("progress").style.width = `${((state.idx+1)/Q.length)*100}%`;
-      const opts = document.getElementById("qOptions");
-      opts.innerHTML = "";
-      SCALE.forEach((txt,i)=>{
-        const btn = document.createElement("div");
-        btn.className = "opt" + (state.answers[state.idx]===i+1?" selected":"");
-        btn.textContent = txt;
-        btn.onclick = ()=> selectOpt(i+1);
-        opts.appendChild(btn);
+    function getDimensionLabel(d) {
+      const labels = {E:'EXTROVERSIÓN', I:'INTROVERSIÓN', S:'SENSORIAL', N:'INTUITIVO', T:'PENSAMIENTO', F:'SENTIMIENTO', J:'JUICIO', P:'PERCEPCIÓN'};
+      return labels[d] || d;
+    }
+
+    function typeText(element, text, speed = 20) {
+      element.textContent = '';
+      element.classList.add('typing');
+      let i = 0;
+      
+      const type = () => {
+        if (i < text.length) {
+          element.textContent += text.charAt(i);
+          i++;
+          setTimeout(type, speed);
+        } else {
+          element.classList.remove('typing');
+        }
+      };
+      type();
+    }
+
+    function renderOptions(question, selected) {
+      const container = document.getElementById('qOptions');
+      container.innerHTML = '';
+      
+      SCALE.forEach((opt, idx) => {
+        const btn = document.createElement('label');
+        btn.className = `opt${selected === opt.value ? ' selected' : ''}`;
+        btn.tabIndex = 0;
+        btn.role = 'radio';
+        btn.setAttribute('aria-checked', selected === opt.value);
+        btn.innerHTML = `<span>${opt.label}</span>`;
+        
+        const select = () => handleSelect(opt.value);
+        btn.onclick = select;
+        btn.onkeydown = (e) => {
+          if (e.key === 'Enter' || e.key === ' ') {
+            e.preventDefault();
+            select();
+          }
+        };
+        
+        container.appendChild(btn);
       });
     }
 
-    function selectOpt(val){
-      state.answers[state.idx] = val;
-      recalcDims();
-      renderQ();
-      save();
-      if(state.idx < Q.length-1){ setTimeout(()=>{ state.idx++; renderQ(); }, 250); }
-      else { setTimeout(showResult, 300); }
+    function handleSelect(value) {
+      state.answers[state.idx] = value;
+      recalculateDimensions();
+      renderQuestion();
+      saveState();
+      
+      // Auto-advance with slight delay for feedback
+      if (state.idx < QUESTIONS.length - 1) {
+        setTimeout(() => {
+          state.idx++;
+          renderQuestion();
+        }, 200);
+      } else {
+        setTimeout(showResults, 400);
+      }
     }
 
-    function prevQ(){ if(state.idx>0){ state.idx--; renderQ(); } }
-    function nextQ(){ if(state.idx<Q.length-1){ state.idx++; renderQ(); } }
+    function prevQ() {
+      if (state.idx > 0) {
+        state.idx--;
+        renderQuestion();
+      }
+    }
 
-    function recalcDims(){
+    function nextQ() {
+      if (state.idx < QUESTIONS.length - 1 && state.answers[state.idx] !== null) {
+        state.idx++;
+        renderQuestion();
+      }
+    }
+
+    /* ===== SCORING ===== */
+    function recalculateDimensions() {
       state.dims = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
-      Q.forEach((q,i)=>{
+      
+      QUESTIONS.forEach((q, i) => {
         const ans = state.answers[i];
-        if(!ans) return;
-        const score = (ans-3) * q.dir;
-        if(score>0) state.dims[q.d] += score;
-        else {
-          const opp = q.d=="E"?"I":q.d=="S"?"N":q.d=="T"?"F":"P";
-          state.dims[opp] += Math.abs(score);
+        if (ans === null) return;
+        
+        const score = (ans - 3) * q.dir; // -2 to +2
+        if (score > 0) {
+          state.dims[q.d] += score;
+        } else {
+          const opposite = {E:'I',I:'E',S:'N',N:'S',T:'F',F:'T',J:'P',P:'J'}[q.d];
+          state.dims[opposite] += Math.abs(score);
         }
       });
     }
 
-    function calcType(){
+    function calculateType() {
       const d = state.dims;
-      return (d.E>=d.I?"E":"I")+(d.S>=d.N?"S":"N")+(d.T>=d.F?"T":"F")+(d.J>=d.P?"J":"P");
+      return (d.E >= d.I ? 'E' : 'I') +
+             (d.S >= d.N ? 'S' : 'N') +
+             (d.T >= d.F ? 'T' : 'F') +
+             (d.J >= d.P ? 'J' : 'P');
     }
 
-    function save(){ localStorage.setItem(STORAGE_KEY, JSON.stringify(state)); }
-
-    function showResult(){
-      showScreen("resultScreen");
-      const type = calcType();
-      document.getElementById("typeCode").textContent = type;
-      const d = state.dims;
-      const grid = document.getElementById("dimGrid");
-      grid.innerHTML = `
-        <div class="dim-item">Extroversión (E) <span class="dim-val">${d.E}</span></div><div class="dim-item">Introversión (I) <span class="dim-val">${d.I}</span></div>
-        <div class="dim-item">Sensorial (S) <span class="dim-val">${d.S}</span></div><div class="dim-item">Intuitivo (N) <span class="dim-val">${d.N}</span></div>
-        <div class="dim-item">Pensamiento (T) <span class="dim-val">${d.T}</span></div><div class="dim-item">Sentimiento (F) <span class="dim-val">${d.F}</span></div>
-        <div class="dim-item">Juicio (J) <span class="dim-val">${d.J}</span></div><div class="dim-item">Percepción (P) <span class="dim-val">${d.P}</span></div>
-      `;
-      document.getElementById("profileText").textContent = getProfile(type);
+    /* ===== RESULTS ===== */
+    function showResults() {
+      state.completed = true;
+      saveState();
+      showScreen('resultScreen');
+      renderResults();
+      showToast('Análisis completado', 'success');
     }
 
-    function getProfile(t){
-      const p = {
-        ENTJ:"COMANDANTE. Liderazgo estratégico, enfoque en eficiencia y resultados. Alta tolerancia a la presión. Puntos ciegos: rigidez interpersonal.",
-        ENTP:"INNOVADOR. Rápido en identificar fallos sistémicos y proponer alternativas. Puntos ciegos: dispersión y falta de cierre operativo.",
-        ESTJ:"ADMINISTRADOR. Ejecución metódica, cumplimiento de protocolos, lealtad institucional. Puntos ciegos: resistencia a lo no probado.",
-        ESTP:"TÁCTICO. Acción inmediata, adaptación en terreno, gestión de crisis. Puntos ciegos: impulsividad y desprecio por planificación larga.",
-        INTJ:"ESTRATEGA. Visión a largo plazo, arquitectura de sistemas, autonomía operativa. Puntos ciegos: sobreanálisis y frialdad percibida.",
-        INTP:"ANALISTA. Desmontaje lógico de problemas, modelado abstracto, precisión técnica. Puntos ciegos: parálisis por opción y ejecución lenta.",
-        ISTJ:"LOGÍSTICO. Confiabilidad, mantenimiento de estándares, ejecución silenciosa. Puntos ciegos: aversión al cambio y burocracia interna.",
-        ISTP:"OPERADOR. Resolución práctica, manejo de herramientas, calma bajo fuego. Puntos ciegos: aislamiento y desinterés por coordinación.",
-        ENFJ:"MENTOR. Movilización de equipos, cohesión, comunicación persuasiva. Puntos ciegos: sobrecompromiso emocional y evitación de conflictos.",
-        ENFP:"EXPLORADOR. Generación de ideas, adaptabilidad, conexión humana. Puntos ciegos: inconsistencia y dificultad con rutinas.",
-        ESFJ:"COORDINADOR. Soporte operativo, mantenimiento de clima, gestión de recursos humanos. Puntos ciegos: dependencia de aprobación externa.",
-        ESFP:"EJECUTOR TÁCTICO. Presencia en terreno, manejo de imprevistos, comunicación directa. Puntos ciegos: falta de planificación y seguimiento.",
-        INFJ:"ARQUITECTO SOCIAL. Lectura de dinámicas, visión sistémica, ética operativa. Puntos ciegos: idealismo y agotamiento por sobrecarga empática.",
-        INFP:"MEDIADOR. Alineación con valores, creatividad estructural, resiliencia moral. Puntos ciegos: evitación de confrontación y pragmatismo limitado.",
-        ISFJ:"PROTECTOR. Mantenimiento de infraestructura humana, lealtad, detalle operativo. Puntos ciegos: resistencia a innovación y autosacrificio.",
-        ISFP:"ARTESANO TÁCTICO. Adaptación silenciosa, ejecución precisa, sensibilidad al entorno. Puntos ciegos: pasividad en toma de decisiones."
+    function renderResults() {
+      const type = calculateType();
+      const d = state.dims;
+      
+      // Type code with animation
+      const typeEl = document.getElementById('typeCode');
+      typeEl.textContent = '';
+      type.split('').forEach((char, i) => {
+        setTimeout(() => {
+          typeEl.textContent += char;
+          if (i === 3) {
+            document.getElementById('typeLabel').textContent = PROFILES[type]?.split('•')[0].replace('<strong>','').replace('</strong>','') || 'PERFIL';
+          }
+        }, i * 150);
+      });
+      
+      // Dimensions grid
+      const grid = document.getElementById('dimGrid');
+      const dims = [
+        {label:'Extroversión (E)', key:'E', opp:'I'},
+        {label:'Introversión (I)', key:'I', opp:'E'},
+        {label:'Sensorial (S)', key:'S', opp:'N'},
+        {label:'Intuitivo (N)', key:'N', opp:'S'},
+        {label:'Pensamiento (T)', key:'T', opp:'F'},
+        {label:'Sentimiento (F)', key:'F', opp:'T'},
+        {label:'Juicio (J)', key:'J', opp:'P'},
+        {label:'Percepción (P)', key:'P', opp:'J'}
+      ];
+      
+      grid.innerHTML = dims.map(dim => {
+        const val = d[dim.key];
+        const oppVal = d[dim.opp];
+        const total = val + oppVal || 1;
+        const percent = Math.round((val / total) * 100);
+        
+        return `
+          <div class="dim-item" role="listitem">
+            <span>${dim.label}</span>
+            <span class="dim-val">${val}</span>
+          </div>
+          <div class="dim-bar"><div class="dim-fill" style="width:${percent}%"></div></div>
+        `;
+      }).join('');
+      
+      // Animate bars
+      setTimeout(() => {
+        document.querySelectorAll('.dim-fill').forEach(bar => {
+          const w = bar.style.width;
+          bar.style.width = '0';
+          setTimeout(() => bar.style.width = w, 50);
+        });
+      }, 100);
+      
+      // Profile text
+      document.getElementById('profileText').innerHTML = PROFILES[type] || 'Perfil no mapeado. Revisar parámetros de entrada.';
+    }
+
+    /* ===== UTILITIES ===== */
+    function copyResult() {
+      const type = calculateType();
+      const text = `CORE//PROFILE ANALYSIS\nTipo: ${type}\n\n${PROFILES[type]}\n\nDimensiones:\n${Object.entries(state.dims).map(([k,v])=>`${k}:${v}`).join(' ')}`;
+      
+      navigator.clipboard?.writeText(text).then(() => {
+        showToast('Resultado copiado al portapapeles', 'success');
+      }).catch(() => {
+        showToast('Error al copiar', 'warn');
+      });
+    }
+
+    function exportJSON() {
+      const data = {
+        type: calculateType(),
+        dimensions: state.dims,
+        answers: state.answers,
+        timestamp: new Date().toISOString(),
+        version: '3.0'
       };
-      return p[t] || "Perfil no mapeado. Revisar parámetros de entrada.";
+      
+      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `core_profile_${calculateType()}_${Date.now()}.json`;
+      a.click();
+      URL.revokeObjectURL(url);
+      
+      showToast('Exportación iniciada', 'success');
     }
 
-    init();
+    function showToast(message, type = '') {
+      const container = document.getElementById('toastContainer');
+      const toast = document.createElement('div');
+      toast.className = `toast ${type}`;
+      toast.textContent = message;
+      container.appendChild(toast);
+      
+      setTimeout(() => toast.remove(), 3000);
+    }
+
+    function setupKeyboardNav() {
+      document.addEventListener('keydown', (e) => {
+        if (document.getElementById('testScreen').classList.contains('hidden')) return;
+        
+        const opts = document.querySelectorAll('.opt');
+        const active = document.activeElement;
+        
+        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
+          e.preventDefault();
+          const idx = Array.from(opts).indexOf(active);
+          opts[Math.min(idx + 1, opts.length - 1)]?.focus();
+        }
+        if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
+          e.preventDefault();
+          const idx = Array.from(opts).indexOf(active);
+          opts[Math.max(idx - 1, 0)]?.focus();
+        }
+        if (e.key === '1' || e.key === '2' || e.key === '3' || e.key === '4' || e.key === '5') {
+          const val = parseInt(e.key);
+          if (SCALE.some(o => o.value === val)) {
+            handleSelect(val);
+          }
+        }
+      });
+    }
+
+    function attachEventListeners() {
+      // Close modal on outside click
+      document.addEventListener('click', (e) => {
+        if (e.target.classList.contains('modal-overlay')) {
+          closeModal(e.target);
+        }
+      });
+    }
+
+    /* ===== BOOT ===== */
+    document.addEventListener('DOMContentLoaded', init);
   </script>
 </body>
 </html>
