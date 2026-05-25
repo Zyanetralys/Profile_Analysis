@@ -1,1338 +1,251 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="CORE//PROFILE ANALYSIS - Sistema de Evaluación Cognitiva MBTI-OPS">
-  <title>CORE//PROFILE ANALYSIS v3.0</title>
-  <style>
-    /* ===== CORE VARIABLES ===== */
-    :root {
-      --bg: #030508;
-      --panel: #0a0d14;
-      --frame: #111827;
-      --cyan: #00f3ff;
-      --magenta: #ff2a6d;
-      --green: #05ffa1;
-      --amber: #ffb86c;
-      --dim: #2a3441;
-      --text: #c8d6e5;
-      --text-dim: #6b7a8f;
-      --warn: #ff3366;
-      --success: #00d9a5;
-      
-      --glow-cyan: 0 0 8px var(--cyan), 0 0 16px rgba(0,243,255,0.3), 0 0 32px rgba(0,243,255,0.1);
-      --glow-green: 0 0 6px var(--green), 0 0 12px rgba(5,255,161,0.2);
-      --glow-warn: 0 0 8px var(--warn), 0 0 16px rgba(255,51,102,0.2);
-      
-      --transition-fast: 150ms ease;
-      --transition-normal: 300ms cubic-bezier(0.4, 0, 0.2, 1);
-      --transition-slow: 500ms cubic-bezier(0.4, 0, 0.2, 1);
-      
-      --radius-sm: 4px;
-      --radius-md: 8px;
-      --radius-lg: 12px;
-      
-      --shadow-card: 0 4px 20px rgba(0,0,0,0.4), inset 0 1px 0 rgba(255,255,255,0.05);
-    }
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 
-    /* ===== RESET & BASE ===== */
-    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
-    
-    html { scroll-behavior: smooth; }
-    
-    body {
-      background: var(--bg);
-      background-image: 
-        radial-gradient(ellipse at 50% 0%, rgba(0,243,255,0.08) 0%, transparent 50%),
-        radial-gradient(ellipse at 100% 100%, rgba(5,255,161,0.06) 0%, transparent 50%),
-        linear-gradient(rgba(17,24,39,0.9) 1px, transparent 1px),
-        linear-gradient(90deg, rgba(17,24,39,0.9) 1px, transparent 1px);
-      background-size: 100% 100%, 100% 100%, 32px 32px, 32px 32px;
-      color: var(--text);
-      font-family: 'SF Mono', 'Fira Code', 'Courier New', monospace;
-      font-size: 16px;
-      line-height: 1.5;
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      min-height: 100vh;
-      padding: 16px;
-      overflow-x: hidden;
-    }
+<title>RPaaS // Neural Response Engine</title>
 
-    /* ===== SCANLINE EFFECT ===== */
-    .scanlines::before {
-      content: "";
-      position: fixed;
-      top: 0; left: 0;
-      width: 100%; height: 100%;
-      background: repeating-linear-gradient(
-        0deg,
-        transparent,
-        transparent 2px,
-        rgba(0, 0, 0, 0.15) 3px
-      );
-      pointer-events: none;
-      z-index: 1000;
-      mix-blend-mode: multiply;
-      animation: scanline 8s linear infinite;
-    }
-    
-    @keyframes scanline {
-      0% { background-position: 0 0; }
-      100% { background-position: 0 100%; }
-    }
+<link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;500;700&display=swap" rel="stylesheet">
 
-    /* ===== APP CONTAINER ===== */
-    #app {
-      width: 100%;
-      max-width: 760px;
-      background: var(--panel);
-      border: 1px solid var(--dim);
-      border-radius: var(--radius-lg);
-      padding: 28px;
-      position: relative;
-      box-shadow: var(--shadow-card);
-      backdrop-filter: blur(8px);
-      transition: opacity var(--transition-normal), transform var(--transition-normal);
-    }
-    
-    #app::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 2px;
-      background: linear-gradient(90deg, transparent, var(--cyan), var(--green), var(--cyan), transparent);
-      animation: borderGlow 3s ease-in-out infinite;
-    }
-    
-    @keyframes borderGlow {
-      0%, 100% { opacity: 0.6; }
-      50% { opacity: 1; }
-    }
+<style>
 
-    /* ===== TYPOGRAPHY ===== */
-    h1 {
-      font-size: 1.25rem;
-      color: var(--cyan);
-      margin-bottom: 4px;
-      letter-spacing: 3px;
-      text-shadow: var(--glow-cyan);
-      text-transform: uppercase;
-      font-weight: 600;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    
-    h1::before {
-      content: "◈";
-      animation: pulse 2s ease-in-out infinite;
-    }
-    
-    @keyframes pulse {
-      0%, 100% { opacity: 1; transform: scale(1); }
-      50% { opacity: 0.7; transform: scale(0.95); }
-    }
-    
-    .sub {
-      font-size: 0.75rem;
-      color: var(--text-dim);
-      margin-bottom: 24px;
-      padding-bottom: 12px;
-      border-bottom: 1px dashed var(--dim);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
+body{
+    margin:0;
+    height:100vh;
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    background: radial-gradient(circle at top, #0d1b2a, #05060a 70%);
+    font-family:'Orbitron', sans-serif;
+    overflow:hidden;
+    color:#00ffe1;
+}
 
-    /* ===== BUTTONS ===== */
-    .btn {
-      background: transparent;
-      color: var(--cyan);
-      border: 1px solid var(--cyan);
-      padding: 12px 20px;
-      cursor: pointer;
-      font: inherit;
-      font-size: 0.875rem;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      transition: all var(--transition-fast);
-      position: relative;
-      overflow: hidden;
-      border-radius: var(--radius-sm);
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      min-height: 44px;
-    }
-    
-    .btn:hover:not(:disabled) {
-      background: rgba(0, 243, 255, 0.12);
-      box-shadow: var(--glow-cyan);
-      transform: translateY(-2px);
-      border-color: var(--cyan);
-    }
-    
-    .btn:active:not(:disabled) {
-      transform: translateY(0);
-    }
-    
-    .btn:focus-visible {
-      outline: 2px solid var(--cyan);
-      outline-offset: 2px;
-    }
-    
-    .btn::after {
-      content: "";
-      position: absolute;
-      bottom: 0; left: 0;
-      width: 0%;
-      height: 2px;
-      background: currentColor;
-      transition: width var(--transition-normal);
-    }
-    
-    .btn:hover::after { width: 100%; }
-    
-    .btn.warn {
-      border-color: var(--warn);
-      color: var(--warn);
-    }
-    
-    .btn.warn:hover:not(:disabled) {
-      background: rgba(255, 51, 102, 0.12);
-      box-shadow: var(--glow-warn);
-    }
-    
-    .btn:disabled {
-      opacity: 0.4;
-      cursor: not-allowed;
-      transform: none !important;
-    }
-    
-    .btn-primary {
-      background: rgba(0, 243, 255, 0.1);
-      border-color: var(--cyan);
-    }
-    
-    .btn-success {
-      border-color: var(--green);
-      color: var(--green);
-    }
-    
-    .btn-success:hover:not(:disabled) {
-      background: rgba(5, 255, 161, 0.12);
-      box-shadow: var(--glow-green);
-    }
+/* scanlines */
+body::before{
+    content:"";
+    position:absolute;
+    inset:0;
+    background: repeating-linear-gradient(
+        to bottom,
+        rgba(255,255,255,0.03),
+        rgba(255,255,255,0.03) 1px,
+        transparent 1px,
+        transparent 4px
+    );
+    pointer-events:none;
+    opacity:0.4;
+}
 
-    /* ===== PROGRESS BAR ===== */
-    .progress-wrapper {
-      margin: 20px 0 28px;
-    }
-    
-    .progress-bar {
-      height: 6px;
-      background: var(--frame);
-      border-radius: 3px;
-      overflow: hidden;
-      border: 1px solid var(--dim);
-      position: relative;
-    }
-    
-    .progress-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--cyan), var(--green));
-      width: 0%;
-      transition: width var(--transition-normal);
-      box-shadow: var(--glow-green);
-      position: relative;
-    }
-    
-    .progress-fill::after {
-      content: "";
-      position: absolute;
-      top: 0; right: 0;
-      width: 2px;
-      height: 100%;
-      background: white;
-      opacity: 0.8;
-      animation: progressScan 1s ease-in-out infinite;
-    }
-    
-    @keyframes progressScan {
-      0%, 100% { opacity: 0; }
-      50% { opacity: 0.8; }
-    }
-    
-    .progress-text {
-      font-size: 0.75rem;
-      color: var(--text-dim);
-      text-align: right;
-      margin-top: 6px;
-      letter-spacing: 1px;
-    }
+.container{
+    width:90%;
+    max-width:900px;
+    background:rgba(10,14,20,0.85);
+    border:1px solid rgba(0,255,225,0.25);
+    border-radius:18px;
+    padding:35px;
+    box-shadow:0 0 40px rgba(0,255,225,0.08);
+    position:relative;
+    overflow:hidden;
+}
 
-    /* ===== QUESTION CONTAINER ===== */
-    .q-container {
-      min-height: 180px;
-      margin-bottom: 24px;
-      background: var(--frame);
-      padding: 20px;
-      border-left: 3px solid var(--cyan);
-      border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-      position: relative;
-      transition: border-color var(--transition-fast);
-    }
-    
-    .q-container::before {
-      content: "";
-      position: absolute;
-      top: 0; left: 0; right: 0;
-      height: 1px;
-      background: linear-gradient(90deg, transparent, var(--dim), transparent);
-    }
-    
-    .q-header {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      margin-bottom: 12px;
-      font-size: 0.75rem;
-      color: var(--text-dim);
-      letter-spacing: 1px;
-      text-transform: uppercase;
-    }
-    
-    .q-text {
-      font-size: 1rem;
-      line-height: 1.6;
-      color: var(--text);
-      min-height: 3.2em;
-      display: flex;
-      align-items: center;
-    }
-    
-    .q-text.typing::after {
-      content: "▊";
-      animation: blink 1s step-end infinite;
-      margin-left: 2px;
-      color: var(--cyan);
-    }
-    
-    @keyframes blink { 50% { opacity: 0; } }
+/* neon border glow */
+.container::after{
+    content:"";
+    position:absolute;
+    inset:0;
+    border-radius:18px;
+    padding:1px;
+    background:linear-gradient(120deg,#00ffe1,#ff00d4,#00ffe1);
+    -webkit-mask:
+      linear-gradient(#fff 0 0) content-box,
+      linear-gradient(#fff 0 0);
+    -webkit-mask-composite:xor;
+    mask-composite:exclude;
+    pointer-events:none;
+    opacity:0.6;
+}
 
-    /* ===== OPTIONS ===== */
-    .options {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      margin-top: 8px;
-    }
-    
-    .opt {
-      padding: 14px 16px;
-      background: #0d121a;
-      border: 1px solid var(--dim);
-      border-radius: var(--radius-sm);
-      cursor: pointer;
-      transition: all var(--transition-fast);
-      position: relative;
-      font-size: 0.9rem;
-      display: flex;
-      align-items: center;
-      gap: 12px;
-    }
-    
-    .opt::before {
-      content: "○";
-      color: var(--dim);
-      font-size: 1.1rem;
-      transition: all var(--transition-fast);
-      min-width: 20px;
-    }
-    
-    .opt:hover {
-      border-color: var(--cyan);
-      background: rgba(0, 243, 255, 0.08);
-      transform: translateX(4px);
-    }
-    
-    .opt:hover::before {
-      content: "◉";
-      color: var(--cyan);
-    }
-    
-    .opt.selected {
-      border-color: var(--green);
-      background: rgba(5, 255, 161, 0.1);
-      box-shadow: inset 0 0 0 1px var(--green);
-    }
-    
-    .opt.selected::before {
-      content: "●";
-      color: var(--green);
-      text-shadow: 0 0 8px var(--green);
-    }
-    
-    .opt:focus-visible {
-      outline: 2px solid var(--cyan);
-      outline-offset: -1px;
-    }
+.header{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:20px;
+}
 
-    /* ===== CONTROLS ===== */
-    .controls {
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      flex-wrap: wrap;
-      gap: 12px;
-      padding-top: 16px;
-      border-top: 1px solid var(--dim);
-    }
-    
-    .q-counter {
-      font-size: 0.75rem;
-      color: var(--text-dim);
-      letter-spacing: 2px;
-      font-weight: 600;
-    }
-    
-    .nav-group {
-      display: flex;
-      gap: 8px;
-    }
+.title{
+    font-size:1.2rem;
+    letter-spacing:3px;
+    text-shadow:0 0 10px #00ffe1;
+}
 
-    /* ===== SCREENS ===== */
-    .screen {
-      animation: fadeIn var(--transition-normal);
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(8px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .hidden { display: none !important; }
+.status{
+    font-size:0.75rem;
+    color:#ff00d4;
+    letter-spacing:2px;
+    animation:pulse 2s infinite;
+}
 
-    /* ===== MENU ===== */
-    .menu-actions {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-      margin: 24px 0;
-    }
-    
-    .status {
-      font-size: 0.75rem;
-      color: var(--text-dim);
-      padding: 12px;
-      background: var(--frame);
-      border-radius: var(--radius-sm);
-      border-left: 2px solid var(--dim);
-      font-style: italic;
-    }
-    
-    .status.success {
-      border-left-color: var(--success);
-      color: var(--success);
-    }
-    
-    .status.warn {
-      border-left-color: var(--warn);
-      color: var(--warn);
-    }
+@keyframes pulse{
+    0%{opacity:0.5}
+    50%{opacity:1}
+    100%{opacity:0.5}
+}
 
-    /* ===== RESULTS ===== */
-    .result-header {
-      text-align: center;
-      padding: 20px 0;
-      border-bottom: 1px dashed var(--dim);
-      margin-bottom: 20px;
-    }
-    
-    .type-code {
-      font-size: 3rem;
-      color: var(--green);
-      letter-spacing: 8px;
-      text-shadow: var(--glow-green);
-      position: relative;
-      display: inline-block;
-      animation: glitch 4s infinite;
-      font-weight: 700;
-    }
-    
-    @keyframes glitch {
-      0%, 90%, 100% { transform: translate(0); text-shadow: var(--glow-green); }
-      92% { transform: translate(-2px, 1px); text-shadow: -2px 0 var(--magenta), 2px 0 var(--cyan); }
-      94% { transform: translate(2px, -1px); }
-      96% { transform: translate(0); }
-      98% { transform: translate(-1px, 0); text-shadow: 0 -2px var(--cyan), 0 2px var(--magenta); }
-    }
-    
-    .type-label {
-      font-size: 0.875rem;
-      color: var(--cyan);
-      letter-spacing: 2px;
-      text-transform: uppercase;
-      margin-top: 8px;
-    }
-    
-    .dim-grid {
-      display: grid;
-      grid-template-columns: repeat(2, 1fr);
-      gap: 10px;
-      margin: 20px 0;
-    }
-    
-    .dim-item {
-      padding: 12px 14px;
-      background: var(--frame);
-      border: 1px solid var(--dim);
-      border-radius: var(--radius-sm);
-      font-size: 0.85rem;
-      display: flex;
-      justify-content: space-between;
-      align-items: center;
-      transition: border-color var(--transition-fast);
-    }
-    
-    .dim-item:hover {
-      border-color: var(--cyan);
-    }
-    
-    .dim-val {
-      color: var(--cyan);
-      font-weight: 700;
-      font-size: 1rem;
-      min-width: 32px;
-      text-align: right;
-    }
-    
-    .dim-bar {
-      height: 4px;
-      background: var(--dim);
-      border-radius: 2px;
-      margin-top: 6px;
-      overflow: hidden;
-    }
-    
-    .dim-fill {
-      height: 100%;
-      background: linear-gradient(90deg, var(--cyan), var(--green));
-      width: 0%;
-      transition: width var(--transition-slow);
-    }
-    
-    .result-box {
-      padding: 20px;
-      background: var(--frame);
-      border: 1px solid var(--dim);
-      border-radius: var(--radius-sm);
-      margin: 20px 0;
-    }
-    
-    .result-box-title {
-      font-weight: 600;
-      color: var(--cyan);
-      margin-bottom: 12px;
-      letter-spacing: 1px;
-      text-transform: uppercase;
-      font-size: 0.875rem;
-      display: flex;
-      align-items: center;
-      gap: 8px;
-    }
-    
-    .result-box-title::before {
-      content: "▸";
-      color: var(--green);
-    }
-    
-    .profile {
-      font-size: 0.9rem;
-      line-height: 1.7;
-      color: var(--text);
-      white-space: pre-wrap;
-    }
-    
-    .profile strong {
-      color: var(--cyan);
-    }
-    
-    .profile em {
-      color: var(--amber);
-      font-style: normal;
-    }
+.screen{
+    min-height:180px;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    text-align:center;
+    padding:30px;
+    font-size:1.4rem;
+    line-height:1.8;
+    background:rgba(0,255,225,0.05);
+    border:1px solid rgba(0,255,225,0.15);
+    border-radius:14px;
+    position:relative;
+    overflow:hidden;
+}
 
-    /* ===== ACTIONS ===== */
-    .result-actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 10px;
-      justify-content: center;
-      margin-top: 24px;
-      padding-top: 20px;
-      border-top: 1px dashed var(--dim);
-    }
+/* glitch overlay */
+.glitch{
+    position:absolute;
+    inset:0;
+    background:linear-gradient(90deg,transparent,rgba(255,0,212,0.1),transparent);
+    transform:translateX(-100%);
+    animation:scan 3s infinite;
+}
 
-    /* ===== TOAST NOTIFICATIONS ===== */
-    .toast {
-      position: fixed;
-      bottom: 24px;
-      right: 24px;
-      padding: 14px 20px;
-      background: var(--panel);
-      border: 1px solid var(--cyan);
-      border-radius: var(--radius-md);
-      color: var(--text);
-      font-size: 0.875rem;
-      box-shadow: var(--glow-cyan), var(--shadow-card);
-      z-index: 2000;
-      display: flex;
-      align-items: center;
-      gap: 10px;
-      animation: slideIn 300ms ease, fadeOut 300ms ease 2700ms forwards;
-      max-width: 320px;
-    }
-    
-    .toast.success { border-color: var(--success); }
-    .toast.warn { border-color: var(--warn); }
-    
-    .toast::before {
-      content: "✓";
-      color: var(--success);
-      font-weight: bold;
-    }
-    
-    .toast.warn::before {
-      content: "⚠";
-      color: var(--warn);
-    }
-    
-    @keyframes slideIn {
-      from { transform: translateX(120%); opacity: 0; }
-      to { transform: translateX(0); opacity: 1; }
-    }
-    
-    @keyframes fadeOut {
-      to { opacity: 0; transform: translateX(20px); }
-    }
+@keyframes scan{
+    0%{transform:translateX(-100%)}
+    50%{transform:translateX(100%)}
+    100%{transform:translateX(100%)}
+}
 
-    /* ===== CONFIRM MODAL ===== */
-    .modal-overlay {
-      position: fixed;
-      top: 0; left: 0; right: 0; bottom: 0;
-      background: rgba(3, 5, 8, 0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 1500;
-      padding: 20px;
-      animation: fadeIn var(--transition-fast);
-    }
-    
-    .modal {
-      background: var(--panel);
-      border: 1px solid var(--warn);
-      border-radius: var(--radius-lg);
-      padding: 24px;
-      max-width: 420px;
-      width: 100%;
-      box-shadow: var(--glow-warn), var(--shadow-card);
-    }
-    
-    .modal-title {
-      color: var(--warn);
-      font-size: 1.1rem;
-      margin-bottom: 12px;
-      letter-spacing: 1px;
-    }
-    
-    .modal-text {
-      color: var(--text-dim);
-      margin-bottom: 20px;
-      font-size: 0.9rem;
-      line-height: 1.6;
-    }
-    
-    .modal-actions {
-      display: flex;
-      gap: 10px;
-      justify-content: flex-end;
-    }
+.buttons{
+    display:flex;
+    justify-content:center;
+    gap:15px;
+    margin-top:25px;
+}
 
-    /* ===== LOADING ===== */
-    .loading {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 12px;
-      padding: 40px 20px;
-      color: var(--cyan);
-    }
-    
-    .spinner {
-      width: 24px;
-      height: 24px;
-      border: 2px solid var(--dim);
-      border-top-color: var(--cyan);
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-    
-    @keyframes spin { to { transform: rotate(360deg); } }
+button{
+    background:transparent;
+    border:1px solid #00ffe1;
+    color:#00ffe1;
+    padding:12px 22px;
+    cursor:pointer;
+    border-radius:10px;
+    font-family:'Orbitron';
+    letter-spacing:2px;
+    transition:0.2s;
+}
 
-    /* ===== RESPONSIVE ===== */
-    @media (max-width: 640px) {
-      #app { padding: 20px 16px; }
-      h1 { font-size: 1.1rem; }
-      .type-code { font-size: 2.4rem; letter-spacing: 4px; }
-      .dim-grid { grid-template-columns: 1fr; }
-      .controls { flex-direction: column; align-items: stretch; }
-      .nav-group { justify-content: center; }
-      .q-text { font-size: 0.95rem; }
-      .opt { padding: 12px 14px; font-size: 0.875rem; }
-    }
+button:hover{
+    background:#00ffe1;
+    color:#000;
+    box-shadow:0 0 20px #00ffe1;
+}
 
-    /* ===== ACCESSIBILITY ===== */
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
-    
-    .sr-only {
-      position: absolute;
-      width: 1px; height: 1px;
-      padding: 0; margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      white-space: nowrap;
-      border: 0;
-    }
-  </style>
+.footer{
+    margin-top:18px;
+    text-align:center;
+    font-size:0.7rem;
+    opacity:0.4;
+    letter-spacing:2px;
+}
+
+/* cursor */
+.cursor::after{
+    content:"▌";
+    animation:blink 0.8s infinite;
+}
+
+@keyframes blink{
+    0%{opacity:0}
+    50%{opacity:1}
+    100%{opacity:0}
+}
+
+</style>
 </head>
+
 <body>
-  <div class="scanlines">
-    <div id="app" role="application" aria-label="Sistema de Evaluación Cognitiva">
-      
-      <!-- HEADER -->
-      <header>
-        <h1 aria-label="Core Profile Analysis">CORE//PROFILE</h1>
-        <div class="sub">MBTI-OPS v3.0 • Evaluación Cognitiva • Persistencia Local</div>
-      </header>
 
-      <!-- MENU SCREEN -->
-      <section id="menu" class="screen" aria-live="polite">
-        <div class="menu-actions">
-          <button class="btn btn-primary" onclick="startTest()" aria-label="Iniciar nueva evaluación">
-            <span>▶</span> INICIAR EVALUACIÓN
-          </button>
-          <button class="btn" id="btnResume" onclick="resumeTest()" aria-label="Continuar sesión guardada" hidden>
-            <span>↻</span> CARGAR SESIÓN
-          </button>
-          <button class="btn warn" onclick="confirmReset()" aria-label="Borrar datos guardados">
-            <span>⨯</span> PURGAR DATOS
-          </button>
-        </div>
-        <div class="status" id="menuStatus" role="status">
-          Sistema inicializado. Esperando entrada de operador...
-        </div>
-      </section>
+<div class="container">
 
-      <!-- TEST SCREEN -->
-      <section id="testScreen" class="screen hidden" aria-live="polite">
-        <div class="progress-wrapper">
-          <div class="progress-bar" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100">
-            <div class="progress-fill" id="progress" aria-hidden="true"></div>
-          </div>
-          <div class="progress-text" id="progressText">0/60 preguntas</div>
-        </div>
-        
-        <div class="q-container">
-          <div class="q-header">
-            <span id="qDimension">DIMENSIÓN: --</span>
-            <span id="qNumber">01/60</span>
-          </div>
-          <div class="q-text typing" id="qText" aria-live="assertive"></div>
-          
-          <fieldset class="options" id="qOptions" role="radiogroup" aria-label="Opciones de respuesta">
-            <!-- Options injected by JS -->
-          </fieldset>
-        </div>
-        
-        <div class="controls">
-          <div class="nav-group">
-            <button class="btn" onclick="prevQ()" id="btnPrev" aria-label="Pregunta anterior" disabled>
-              ← ATRÁS
-            </button>
-            <button class="btn" onclick="nextQ()" id="btnNext" aria-label="Siguiente pregunta" disabled>
-              SIGUIENTE →
-            </button>
-          </div>
-          <span class="q-counter" id="qCounter" aria-live="polite">00/60</span>
-        </div>
-      </section>
-
-      <!-- RESULT SCREEN -->
-      <section id="resultScreen" class="screen hidden" aria-live="polite">
-        <div class="result-header">
-          <div class="type-code" id="typeCode" aria-label="Tipo de personalidad">----</div>
-          <div class="type-label" id="typeLabel">ANALIZANDO PATRONES...</div>
-        </div>
-        
-        <div class="dim-grid" id="dimGrid" role="list" aria-label="Dimensiones cognitivas">
-          <!-- Dimensions injected by JS -->
-        </div>
-        
-        <div class="result-box">
-          <div class="result-box-title">PERFIL OPERATIVO</div>
-          <div class="profile" id="profileText"></div>
-        </div>
-        
-        <div class="result-actions">
-          <button class="btn btn-success" onclick="copyResult()" aria-label="Copiar resultados">
-            📋 COPIAR RESULTADO
-          </button>
-          <button class="btn" onclick="exportJSON()" aria-label="Exportar como JSON">
-            💾 EXPORTAR JSON
-          </button>
-          <button class="btn warn" onclick="resetAndRestart()" aria-label="Reiniciar protocolo">
-            ↻ REINICIAR
-          </button>
-        </div>
-      </section>
-
+    <div class="header">
+        <div class="title">RPaaS // NEURAL RESPONSE ENGINE</div>
+        <div class="status">SYSTEM ONLINE</div>
     </div>
-  </div>
 
-  <!-- TOAST CONTAINER -->
-  <div id="toastContainer" aria-live="assertive" aria-atomic="true"></div>
+    <div class="screen">
+        <div class="glitch"></div>
+        <div id="output" class="cursor"></div>
+    </div>
 
-  <script>
-    /* ===== DATA: QUESTIONS ===== */
-    const QUESTIONS = [
-      // E/I - 15 questions
-      {t:"Prefiero interactuar con varias personas antes que estar solo.", d:"E", dir:1},
-      {t:"Me agoto rápido en reuniones largas y necesito tiempo a solas.", d:"E", dir:-1},
-      {t:"Suelo pensar en voz alta para organizar mis ideas.", d:"E", dir:1},
-      {t:"Proceso mejor la información internamente antes de hablar.", d:"E", dir:-1},
-      {t:"Busco activamente nuevas experiencias sociales.", d:"E", dir:1},
-      {t:"Me cuesta iniciar conversaciones con desconocidos.", d:"E", dir:-1},
-      {t:"Trabajo mejor en equipo que de forma aislada.", d:"E", dir:1},
-      {t:"Prefiero observar antes de participar en un grupo nuevo.", d:"E", dir:-1},
-      {t:"Me motiva el reconocimiento externo y el feedback inmediato.", d:"E", dir:1},
-      {t:"Valoro más la autosuficiencia y la independencia mental.", d:"E", dir:-1},
-      {t:"Suelo tomar la iniciativa en entornos sociales.", d:"E", dir:1},
-      {t:"Prefiero mantener un círculo reducido y profundo.", d:"E", dir:-1},
-      {t:"Me resulta fácil mantener varias conversaciones simultáneas.", d:"E", dir:1},
-      {t:"Necesito tiempo de reflexión antes de tomar decisiones grupales.", d:"E", dir:-1},
-      {t:"La energía me viene de la acción y el contacto directo.", d:"E", dir:1},
-      
-      // S/N - 15 questions
-      {t:"Me fijo en datos concretos y hechos verificables.", d:"S", dir:1},
-      {t:"Me interesan más las posibilidades futuras que los detalles actuales.", d:"S", dir:-1},
-      {t:"Prefiero instrucciones claras y pasos definidos.", d:"S", dir:1},
-      {t:"Disfruto descifrando patrones abstractos sin guía explícita.", d:"S", dir:-1},
-      {t:"Confío más en la experiencia práctica que en la teoría.", d:"S", dir:1},
-      {t:"Me atraen más las ideas innovadoras que los métodos probados.", d:"S", dir:-1},
-      {t:"Soy bueno recordando datos específicos y fechas.", d:"S", dir:1},
-      {t:"Suelo extrapolar escenarios hipotéticos con facilidad.", d:"S", dir:-1},
-      {t:"Prefiero soluciones reales y aplicables ya.", d:"S", dir:1},
-      {t:"Me frustra la rutina y busco significado simbólico.", d:"S", dir:-1},
-      {t:"Aprecio lo tangible y lo medible.", d:"S", dir:1},
-      {t:"Me pierdo en reflexiones teóricas o conceptuales.", d:"S", dir:-1},
-      {t:"Valoro la precisión y los hechos comprobados.", d:"S", dir:1},
-      {t:"Prefiero explorar el 'qué podría ser' antes que el 'qué es'.", d:"S", dir:-1},
-      {t:"Me siento cómodo trabajando con lo presente y lo concreto.", d:"S", dir:1},
-      
-      // T/F - 15 questions
-      {t:"Tomo decisiones basándome en lógica y eficiencia.", d:"T", dir:1},
-      {t:"Considero el impacto emocional en otros antes de decidir.", d:"T", dir:-1},
-      {t:"Prefiero la justicia objetiva sobre la armonía grupal.", d:"T", dir:1},
-      {t:"Adapto mis criterios según las necesidades personales de cada uno.", d:"T", dir:-1},
-      {t:"Critico constructivamente incluso si incomoda.", d:"T", dir:1},
-      {t:"Evito confrontaciones para preservar el clima.", d:"T", dir:-1},
-      {t:"Valoro la competencia y los resultados medibles.", d:"T", dir:1},
-      {t:"Valoro la empatía y el apoyo mutuo.", d:"T", dir:-1},
-      {t:"Me resulta fácil separar sentimientos de hechos.", d:"T", dir:1},
-      {t:"Mis decisiones suelen estar filtradas por mis valores personales.", d:"T", dir:-1},
-      {t:"Prefiero analizar fríamente antes de actuar.", d:"T", dir:1},
-      {t:"Sigo mi intuición moral aunque contradiga la lógica.", d:"T", dir:-1},
-      {t:"Busco la opción más racional, no la más popular.", d:"T", dir:1},
-      {t:"Priorizo el bienestar del equipo sobre la eficiencia pura.", d:"T", dir:-1},
-      {t:"Aprecio el debate intelectual por encima del consenso fácil.", d:"T", dir:1},
-      
-      // J/P - 15 questions
-      {t:"Planifico con antelación y sigo calendarios.", d:"J", dir:1},
-      {t:"Prefiero mantener opciones abiertas y adaptarme.", d:"J", dir:-1},
-      {t:"Me estresa dejar tareas sin cerrar.", d:"J", dir:1},
-      {t:"Me motiva la espontaneidad y el cambio de rumbo.", d:"J", dir:-1},
-      {t:"Organizo mi espacio y mi tiempo de forma estructurada.", d:"J", dir:1},
-      {t:"Trabajo mejor bajo presión de último momento.", d:"J", dir:-1},
-      {t:"Establezco metas claras y plazos definidos.", d:"J", dir:1},
-      {t:"Prefiero explorar sin un objetivo fijo.", d:"J", dir:-1},
-      {t:"Sigo listas de tareas y rutinas establecidas.", d:"J", dir:1},
-      {t:"Cambio de plan fácilmente si surge algo mejor.", d:"J", dir:-1},
-      {t:"Busco cierre y decisiones definitivas.", d:"J", dir:1},
-      {t:"Disfruto el proceso más que el resultado final.", d:"J", dir:-1},
-      {t:"Me preparo para imprevistos con anticipación.", d:"J", dir:1},
-      {t:"Confío en mi capacidad para improvisar.", d:"J", dir:-1},
-      {t:"Prefiero un entorno predecible y controlado.", d:"J", dir:1}
-    ];
+    <div class="buttons">
+        <button onclick="generate()">EXECUTE</button>
+        <button onclick="copyText()">COPY</button>
+    </div>
 
-    const SCALE = [
-      {label:"Nada de acuerdo", value:1},
-      {label:"Poco de acuerdo", value:2},
-      {label:"Neutral", value:3},
-      {label:"Bastante de acuerdo", value:4},
-      {label:"Totalmente de acuerdo", value:5}
-    ];
+    <div class="footer">
+        RESPONSE GENERATION LAYER // CORPORATE NEURAL STACK
+    </div>
 
-    const PROFILES = {
-      ENTJ:"<strong>COMANDANTE</strong> • Liderazgo estratégico, enfoque en eficiencia y resultados. Alta tolerancia a la presión. <em>Puntos ciegos:</em> rigidez interpersonal, impaciencia con procesos lentos.",
-      ENTP:"<strong>INNOVADOR</strong> • Rápido en identificar fallos sistémicos y proponer alternativas. Creatividad disruptiva. <em>Puntos ciegos:</em> dispersión, dificultad con cierre operativo.",
-      ESTJ:"<strong>ADMINISTRADOR</strong> • Ejecución metódica, cumplimiento de protocolos, lealtad institucional. <em>Puntos ciegos:</em> resistencia a lo no probado, rigidez ante cambios.",
-      ESTP:"<strong>TÁCTICO</strong> • Acción inmediata, adaptación en terreno, gestión de crisis. <em>Puntos ciegos:</em> impulsividad, desprecio por planificación a largo plazo.",
-      INTJ:"<strong>ESTRATEGA</strong> • Visión a largo plazo, arquitectura de sistemas, autonomía operativa. <em>Puntos ciegos:</em> sobreanálisis, frialdad percibida, aislamiento.",
-      INTP:"<strong>ANALISTA</strong> • Desmontaje lógico de problemas, modelado abstracto, precisión técnica. <em>Puntos ciegos:</em> parálisis por opción, ejecución lenta.",
-      ISTJ:"<strong>LOGÍSTICO</strong> • Confiabilidad, mantenimiento de estándares, ejecución silenciosa. <em>Puntos ciegos:</em> aversión al cambio, burocracia interna.",
-      ISTP:"<strong>OPERADOR</strong> • Resolución práctica, manejo de herramientas, calma bajo presión. <em>Puntos ciegos:</em> aislamiento, desinterés por coordinación.",
-      ENFJ:"<strong>MENTOR</strong> • Movilización de equipos, cohesión, comunicación persuasiva. <em>Puntos ciegos:</em> sobrecompromiso emocional, evitación de conflictos necesarios.",
-      ENFP:"<strong>EXPLORADOR</strong> • Generación de ideas, adaptabilidad, conexión humana auténtica. <em>Puntos ciegos:</em> inconsistencia, dificultad con rutinas estructuradas.",
-      ESFJ:"<strong>COORDINADOR</strong> • Soporte operativo, mantenimiento de clima, gestión de recursos humanos. <em>Puntos ciegos:</em> dependencia de aprobación externa, evitación de crítica.",
-      ESFP:"<strong>EJECUTOR</strong> • Presencia en terreno, manejo de imprevistos, comunicación directa. <em>Puntos ciegos:</em> falta de planificación, dificultad con seguimiento.",
-      INFJ:"<strong>ARQUITECTO SOCIAL</strong> • Lectura de dinámicas, visión sistémica, ética operativa. <em>Puntos ciegos:</em> idealismo, agotamiento por sobrecarga empática.",
-      INFP:"<strong>MEDIADOR</strong> • Alineación con valores, creatividad estructural, resiliencia moral. <em>Puntos ciegos:</em> evitación de confrontación, pragmatismo limitado.",
-      ISFJ:"<strong>PROTECTOR</strong> • Mantenimiento de infraestructura humana, lealtad, detalle operativo. <em>Puntos ciegos:</em> resistencia a innovación, autosacrificio.",
-      ISFP:"<strong>ARTESANO</strong> • Adaptación silenciosa, ejecución precisa, sensibilidad al entorno. <em>Puntos ciegos:</em> pasividad en decisiones, dificultad con estructura."
-    };
+</div>
 
-    /* ===== STATE MANAGEMENT ===== */
-    const STORAGE_KEY = "mbti_ops_state_v3";
-    let state = {
-      idx: 0,
-      answers: new Array(QUESTIONS.length).fill(null),
-      dims: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0},
-      completed: false
-    };
+<script>
 
-    /* ===== INITIALIZATION ===== */
-    function init() {
-      loadState();
-      updateMenuStatus();
-      setupKeyboardNav();
-      attachEventListeners();
-    }
+const fragments = [
+    "Entendido. Reconfiguro la arquitectura operativa.",
+    "Procesado. Su directiva redefine la prioridad del sistema.",
+    "Afirmativo. Ajuste inmediato de parámetros críticos.",
+    "Validación completa. Iniciando sincronización global.",
+    "Su criterio ha sido integrado en la matriz de decisión.",
+    "Reasignando recursos hacia su objetivo declarado.",
+    "Neutralizando desviaciones del flujo principal.",
+    "Sistema alineado con su vector estratégico.",
+    "Ejecución optimizada bajo su supervisión.",
+    "Parámetros actualizados. Flujo estable."
+];
 
-    function loadState() {
-      try {
-        const saved = localStorage.getItem(STORAGE_KEY);
-        if (saved) {
-          const parsed = JSON.parse(saved);
-          if (parsed.answers?.length === QUESTIONS.length) {
-            state = {...state, ...parsed};
-            document.getElementById('btnResume').hidden = false;
-          }
+function rand(arr){
+    return arr[Math.floor(Math.random()*arr.length)];
+}
+
+/* typewriter effect */
+function typeText(text, el, speed=18){
+    el.innerHTML = "";
+    let i = 0;
+
+    function type(){
+        if(i < text.length){
+            el.innerHTML += text.charAt(i);
+            i++;
+            setTimeout(type, speed);
         }
-      } catch (e) {
-        console.warn('Error loading state:', e);
-        showToast('Error cargando sesión', 'warn');
-      }
     }
 
-    function saveState() {
-      try {
-        localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-      } catch (e) {
-        console.warn('Error saving state:', e);
-      }
-    }
+    type();
+}
 
-    function updateMenuStatus() {
-      const status = document.getElementById('menuStatus');
-      const answered = state.answers.filter(a => a !== null).length;
-      
-      if (state.completed) {
-        status.textContent = `✓ Evaluación completada. Tipo: ${calculateType()}`;
-        status.className = 'status success';
-      } else if (answered > 0) {
-        status.textContent = `Sesión guardada: ${answered}/${QUESTIONS.length} respondidas`;
-        status.className = 'status warn';
-      } else {
-        status.textContent = 'Sistema listo. Esperando entrada de operador...';
-        status.className = 'status';
-      }
-    }
+function generate(){
+    const phrase = rand(fragments);
+    const out = document.getElementById("output");
+    typeText(phrase, out);
+}
 
-    /* ===== NAVIGATION ===== */
-    function showScreen(id) {
-      document.querySelectorAll('.screen').forEach(s => s.classList.add('hidden'));
-      document.getElementById(id).classList.remove('hidden');
-      
-      // Focus management for accessibility
-      if (id === 'testScreen') {
-        setTimeout(() => {
-          const firstOpt = document.querySelector('.opt');
-          if (firstOpt) firstOpt.focus();
-        }, 100);
-      }
-    }
+function copyText(){
+    navigator.clipboard.writeText(document.getElementById("output").innerText);
+}
 
-    function startTest() {
-      state = {
-        idx: 0,
-        answers: new Array(QUESTIONS.length).fill(null),
-        dims: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0},
-        completed: false
-      };
-      document.getElementById('btnResume').hidden = true;
-      showScreen('testScreen');
-      renderQuestion();
-      saveState();
-      showToast('Evaluación iniciada');
-    }
+/* auto boot */
+generate();
 
-    function resumeTest() {
-      if (state.completed) {
-        showScreen('resultScreen');
-        renderResults();
-      } else {
-        showScreen('testScreen');
-        renderQuestion();
-      }
-      showToast('Sesión cargada');
-    }
+</script>
 
-    function resetAndRestart() {
-      resetData();
-      startTest();
-    }
-
-    function confirmReset() {
-      const modal = document.createElement('div');
-      modal.className = 'modal-overlay';
-      modal.innerHTML = `
-        <div class="modal" role="alertdialog" aria-labelledby="modalTitle" aria-describedby="modalDesc">
-          <h3 class="modal-title" id="modalTitle">⚠ CONFIRMACIÓN</h3>
-          <p class="modal-text" id="modalDesc">¿Purgar todos los datos de la sesión actual? Esta acción no se puede deshacer.</p>
-          <div class="modal-actions">
-            <button class="btn" onclick="closeModal(this)">CANCELAR</button>
-            <button class="btn warn" onclick="executeReset(this)">CONFIRMAR PURGA</button>
-          </div>
-        </div>
-      `;
-      document.body.appendChild(modal);
-      
-      // Close on escape
-      const onKey = (e) => {
-        if (e.key === 'Escape') closeModal(modal);
-      };
-      document.addEventListener('keydown', onKey);
-      modal.dataset.cleanup = () => document.removeEventListener('keydown', onKey);
-    }
-
-    function closeModal(btn) {
-      const modal = btn.closest('.modal-overlay');
-      modal?.dataset.cleanup?.();
-      modal?.remove();
-    }
-
-    function executeReset(btn) {
-      resetData();
-      closeModal(btn);
-      showToast('Datos purgados', 'success');
-    }
-
-    function resetData() {
-      localStorage.removeItem(STORAGE_KEY);
-      state = {
-        idx: 0,
-        answers: new Array(QUESTIONS.length).fill(null),
-        dims: {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0},
-        completed: false
-      };
-      updateMenuStatus();
-    }
-
-    /* ===== QUESTION RENDERING ===== */
-    function renderQuestion() {
-      const q = QUESTIONS[state.idx];
-      const progress = ((state.idx) / QUESTIONS.length) * 100;
-      
-      // Update progress
-      document.getElementById('progress').style.width = `${progress}%`;
-      document.getElementById('progress').parentElement.setAttribute('aria-valuenow', Math.round(progress));
-      document.getElementById('progressText').textContent = `${state.idx + 1}/${QUESTIONS.length} preguntas`;
-      document.getElementById('qCounter').textContent = `${String(state.idx + 1).padStart(2,'0')}/${QUESTIONS.length}`;
-      document.getElementById('qNumber').textContent = `${String(state.idx + 1).padStart(2,'0')}/${QUESTIONS.length}`;
-      document.getElementById('qDimension').textContent = `DIMENSIÓN: ${getDimensionLabel(q.d)}`;
-      
-      // Animate question text
-      const qText = document.getElementById('qText');
-      qText.classList.add('typing');
-      typeText(qText, `[${String(state.idx + 1).padStart(2, '0')}] ${q.t}`, 15);
-      
-      // Render options
-      renderOptions(q, state.answers[state.idx]);
-      
-      // Update navigation buttons
-      document.getElementById('btnPrev').disabled = state.idx === 0;
-      document.getElementById('btnNext').disabled = state.answers[state.idx] === null;
-    }
-
-    function getDimensionLabel(d) {
-      const labels = {E:'EXTROVERSIÓN', I:'INTROVERSIÓN', S:'SENSORIAL', N:'INTUITIVO', T:'PENSAMIENTO', F:'SENTIMIENTO', J:'JUICIO', P:'PERCEPCIÓN'};
-      return labels[d] || d;
-    }
-
-    function typeText(element, text, speed = 20) {
-      element.textContent = '';
-      element.classList.add('typing');
-      let i = 0;
-      
-      const type = () => {
-        if (i < text.length) {
-          element.textContent += text.charAt(i);
-          i++;
-          setTimeout(type, speed);
-        } else {
-          element.classList.remove('typing');
-        }
-      };
-      type();
-    }
-
-    function renderOptions(question, selected) {
-      const container = document.getElementById('qOptions');
-      container.innerHTML = '';
-      
-      SCALE.forEach((opt, idx) => {
-        const btn = document.createElement('label');
-        btn.className = `opt${selected === opt.value ? ' selected' : ''}`;
-        btn.tabIndex = 0;
-        btn.role = 'radio';
-        btn.setAttribute('aria-checked', selected === opt.value);
-        btn.innerHTML = `<span>${opt.label}</span>`;
-        
-        const select = () => handleSelect(opt.value);
-        btn.onclick = select;
-        btn.onkeydown = (e) => {
-          if (e.key === 'Enter' || e.key === ' ') {
-            e.preventDefault();
-            select();
-          }
-        };
-        
-        container.appendChild(btn);
-      });
-    }
-
-    function handleSelect(value) {
-      state.answers[state.idx] = value;
-      recalculateDimensions();
-      renderQuestion();
-      saveState();
-      
-      // Auto-advance with slight delay for feedback
-      if (state.idx < QUESTIONS.length - 1) {
-        setTimeout(() => {
-          state.idx++;
-          renderQuestion();
-        }, 200);
-      } else {
-        setTimeout(showResults, 400);
-      }
-    }
-
-    function prevQ() {
-      if (state.idx > 0) {
-        state.idx--;
-        renderQuestion();
-      }
-    }
-
-    function nextQ() {
-      if (state.idx < QUESTIONS.length - 1 && state.answers[state.idx] !== null) {
-        state.idx++;
-        renderQuestion();
-      }
-    }
-
-    /* ===== SCORING ===== */
-    function recalculateDimensions() {
-      state.dims = {E:0,I:0,S:0,N:0,T:0,F:0,J:0,P:0};
-      
-      QUESTIONS.forEach((q, i) => {
-        const ans = state.answers[i];
-        if (ans === null) return;
-        
-        const score = (ans - 3) * q.dir; // -2 to +2
-        if (score > 0) {
-          state.dims[q.d] += score;
-        } else {
-          const opposite = {E:'I',I:'E',S:'N',N:'S',T:'F',F:'T',J:'P',P:'J'}[q.d];
-          state.dims[opposite] += Math.abs(score);
-        }
-      });
-    }
-
-    function calculateType() {
-      const d = state.dims;
-      return (d.E >= d.I ? 'E' : 'I') +
-             (d.S >= d.N ? 'S' : 'N') +
-             (d.T >= d.F ? 'T' : 'F') +
-             (d.J >= d.P ? 'J' : 'P');
-    }
-
-    /* ===== RESULTS ===== */
-    function showResults() {
-      state.completed = true;
-      saveState();
-      showScreen('resultScreen');
-      renderResults();
-      showToast('Análisis completado', 'success');
-    }
-
-    function renderResults() {
-      const type = calculateType();
-      const d = state.dims;
-      
-      // Type code with animation
-      const typeEl = document.getElementById('typeCode');
-      typeEl.textContent = '';
-      type.split('').forEach((char, i) => {
-        setTimeout(() => {
-          typeEl.textContent += char;
-          if (i === 3) {
-            document.getElementById('typeLabel').textContent = PROFILES[type]?.split('•')[0].replace('<strong>','').replace('</strong>','') || 'PERFIL';
-          }
-        }, i * 150);
-      });
-      
-      // Dimensions grid
-      const grid = document.getElementById('dimGrid');
-      const dims = [
-        {label:'Extroversión (E)', key:'E', opp:'I'},
-        {label:'Introversión (I)', key:'I', opp:'E'},
-        {label:'Sensorial (S)', key:'S', opp:'N'},
-        {label:'Intuitivo (N)', key:'N', opp:'S'},
-        {label:'Pensamiento (T)', key:'T', opp:'F'},
-        {label:'Sentimiento (F)', key:'F', opp:'T'},
-        {label:'Juicio (J)', key:'J', opp:'P'},
-        {label:'Percepción (P)', key:'P', opp:'J'}
-      ];
-      
-      grid.innerHTML = dims.map(dim => {
-        const val = d[dim.key];
-        const oppVal = d[dim.opp];
-        const total = val + oppVal || 1;
-        const percent = Math.round((val / total) * 100);
-        
-        return `
-          <div class="dim-item" role="listitem">
-            <span>${dim.label}</span>
-            <span class="dim-val">${val}</span>
-          </div>
-          <div class="dim-bar"><div class="dim-fill" style="width:${percent}%"></div></div>
-        `;
-      }).join('');
-      
-      // Animate bars
-      setTimeout(() => {
-        document.querySelectorAll('.dim-fill').forEach(bar => {
-          const w = bar.style.width;
-          bar.style.width = '0';
-          setTimeout(() => bar.style.width = w, 50);
-        });
-      }, 100);
-      
-      // Profile text
-      document.getElementById('profileText').innerHTML = PROFILES[type] || 'Perfil no mapeado. Revisar parámetros de entrada.';
-    }
-
-    /* ===== UTILITIES ===== */
-    function copyResult() {
-      const type = calculateType();
-      const text = `CORE//PROFILE ANALYSIS\nTipo: ${type}\n\n${PROFILES[type]}\n\nDimensiones:\n${Object.entries(state.dims).map(([k,v])=>`${k}:${v}`).join(' ')}`;
-      
-      navigator.clipboard?.writeText(text).then(() => {
-        showToast('Resultado copiado al portapapeles', 'success');
-      }).catch(() => {
-        showToast('Error al copiar', 'warn');
-      });
-    }
-
-    function exportJSON() {
-      const data = {
-        type: calculateType(),
-        dimensions: state.dims,
-        answers: state.answers,
-        timestamp: new Date().toISOString(),
-        version: '3.0'
-      };
-      
-      const blob = new Blob([JSON.stringify(data, null, 2)], {type:'application/json'});
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = `core_profile_${calculateType()}_${Date.now()}.json`;
-      a.click();
-      URL.revokeObjectURL(url);
-      
-      showToast('Exportación iniciada', 'success');
-    }
-
-    function showToast(message, type = '') {
-      const container = document.getElementById('toastContainer');
-      const toast = document.createElement('div');
-      toast.className = `toast ${type}`;
-      toast.textContent = message;
-      container.appendChild(toast);
-      
-      setTimeout(() => toast.remove(), 3000);
-    }
-
-    function setupKeyboardNav() {
-      document.addEventListener('keydown', (e) => {
-        if (document.getElementById('testScreen').classList.contains('hidden')) return;
-        
-        const opts = document.querySelectorAll('.opt');
-        const active = document.activeElement;
-        
-        if (e.key === 'ArrowDown' || e.key === 'ArrowRight') {
-          e.preventDefault();
-          const idx = Array.from(opts).indexOf(active);
-          opts[Math.min(idx + 1, opts.length - 1)]?.focus();
-        }
-        if (e.key === 'ArrowUp' || e.key === 'ArrowLeft') {
-          e.preventDefault();
-          const idx = Array.from(opts).indexOf(active);
-          opts[Math.max(idx - 1, 0)]?.focus();
-        }
-        if (e.key === '1' || e.key === '2' || e.key === '3' || e.key === '4' || e.key === '5') {
-          const val = parseInt(e.key);
-          if (SCALE.some(o => o.value === val)) {
-            handleSelect(val);
-          }
-        }
-      });
-    }
-
-    function attachEventListeners() {
-      // Close modal on outside click
-      document.addEventListener('click', (e) => {
-        if (e.target.classList.contains('modal-overlay')) {
-          closeModal(e.target);
-        }
-      });
-    }
-
-    /* ===== BOOT ===== */
-    document.addEventListener('DOMContentLoaded', init);
-  </script>
 </body>
 </html>
